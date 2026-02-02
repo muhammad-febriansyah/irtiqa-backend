@@ -17,36 +17,51 @@ class PrivacyController extends Controller
      */
     public function getPolicy(Request $request): JsonResponse
     {
-        $policy = [
-            'version' => '1.0',
-            'last_updated' => '2026-01-30',
-            'sections' => [
-                [
-                    'title' => 'Pengumpulan Data',
-                    'content' => 'IRTIQA mengumpulkan data pribadi yang Anda berikan secara sukarela, termasuk nama, email, informasi profil, dan konten konsultasi.',
+        $legalPage = \App\Models\LegalPage::where('slug', 'privacy-policy')->first();
+
+        if ($legalPage) {
+            $policy = [
+                'version' => '1.1',
+                'last_updated' => $legalPage->updated_at->format('Y-m-d'),
+                'sections' => [
+                    [
+                        'title' => $legalPage->title,
+                        'content' => strip_tags($legalPage->content), // Strip tags for mobile compatibility if not using MD
+                    ],
                 ],
-                [
-                    'title' => 'Penggunaan Data',
-                    'content' => 'Data Anda digunakan untuk memberikan layanan pendampingan psiko-spiritual, meningkatkan kualitas layanan, dan komunikasi terkait layanan.',
+            ];
+        } else {
+            $policy = [
+                'version' => '1.0',
+                'last_updated' => '2026-01-30',
+                'sections' => [
+                    [
+                        'title' => 'Pengumpulan Data',
+                        'content' => 'IRTIQA mengumpulkan data pribadi yang Anda berikan secara sukarela, termasuk nama, email, informasi profil, dan konten konsultasi.',
+                    ],
+                    [
+                        'title' => 'Penggunaan Data',
+                        'content' => 'Data Anda digunakan untuk memberikan layanan pendampingan psiko-spiritual, meningkatkan kualitas layanan, dan komunikasi terkait layanan.',
+                    ],
+                    [
+                        'title' => 'Keamanan Data',
+                        'content' => 'Kami menggunakan enkripsi dan langkah keamanan standar industri untuk melindungi data Anda. Konten jurnal pribadi dienkripsi secara otomatis.',
+                    ],
+                    [
+                        'title' => 'Penyimpanan Data',
+                        'content' => 'Data Anda disimpan selama akun aktif dan hingga 365 hari setelah penghapusan akun untuk keperluan audit dan kepatuhan.',
+                    ],
+                    [
+                        'title' => 'Hak Anda',
+                        'content' => 'Anda memiliki hak untuk mengakses, mengubah, mengekspor, dan menghapus data pribadi Anda kapan saja.',
+                    ],
+                    [
+                        'title' => 'Pembagian Data',
+                        'content' => 'IRTIQA tidak membagikan data pribadi Anda kepada pihak ketiga tanpa persetujuan Anda, kecuali diwajibkan oleh hukum.',
+                    ],
                 ],
-                [
-                    'title' => 'Keamanan Data',
-                    'content' => 'Kami menggunakan enkripsi dan langkah keamanan standar industri untuk melindungi data Anda. Konten jurnal pribadi dienkripsi secara otomatis.',
-                ],
-                [
-                    'title' => 'Penyimpanan Data',
-                    'content' => 'Data Anda disimpan selama akun aktif dan hingga 365 hari setelah penghapusan akun untuk keperluan audit dan kepatuhan.',
-                ],
-                [
-                    'title' => 'Hak Anda',
-                    'content' => 'Anda memiliki hak untuk mengakses, mengubah, mengekspor, dan menghapus data pribadi Anda kapan saja.',
-                ],
-                [
-                    'title' => 'Pembagian Data',
-                    'content' => 'IRTIQA tidak membagikan data pribadi Anda kepada pihak ketiga tanpa persetujuan Anda, kecuali diwajibkan oleh hukum.',
-                ],
-            ],
-        ];
+            ];
+        }
 
         return response()->json([
             'success' => true,
