@@ -69,6 +69,40 @@ class PrivacyController extends Controller
         ]);
     }
 
+    public function getTerms(Request $request): JsonResponse
+    {
+        $legalPage = \App\Models\LegalPage::where('slug', 'terms-and-conditions')->first();
+
+        if ($legalPage) {
+            $policy = [
+                'version' => '1.1',
+                'last_updated' => $legalPage->updated_at->format('Y-m-d'),
+                'sections' => [
+                    [
+                        'title' => $legalPage->title,
+                        'content' => strip_tags($legalPage->content),
+                    ],
+                ],
+            ];
+        } else {
+            $policy = [
+                'version' => '1.0',
+                'last_updated' => '2026-01-30',
+                'sections' => [
+                    [
+                        'title' => 'Terms and Conditions',
+                        'content' => 'Ini adalah halaman syarat dan ketentuan penggunaan platform IRTIQA.',
+                    ],
+                ],
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $policy,
+        ]);
+    }
+
     /**
      * Export user data
      */

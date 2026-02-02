@@ -9,12 +9,17 @@ class UserProfile extends Model
 {
     protected $fillable = [
         'user_id',
+        'pseudonym',
         'birth_date',
+        'age',
         'gender',
         'phone',
         'city',
         'province',
         'address',
+        'primary_concern',
+        'onboarding_completed',
+        'onboarding_completed_at',
         'disclaimer_accepted',
         'disclaimer_accepted_at',
         'disclaimer_log',

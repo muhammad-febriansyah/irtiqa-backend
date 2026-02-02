@@ -124,6 +124,7 @@ Route::prefix('v1')->group(function () {
         // Privacy & Data
         Route::prefix('privacy')->group(function () {
             Route::get('policy', [PrivacyController::class, 'getPolicy']);
+            Route::get('terms', [PrivacyController::class, 'getTerms']);
             Route::get('my-data', [PrivacyController::class, 'exportMyData']);
             Route::get('download-data', [PrivacyController::class, 'downloadData']);
             Route::get('retention-info', [PrivacyController::class, 'getDataRetentionInfo']);
