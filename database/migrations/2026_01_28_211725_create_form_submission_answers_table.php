@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('form_submission_answers', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('form_submission_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('form_field_id')->constrained()->cascadeOnDelete();
+            $table->json('answer_value'); // Bisa string, array, number, dll
+            $table->integer('risk_score')->default(0);
+            $table->text('explanation')->nullable(); // Jika requires_explanation
+            $table->timestamps();
+
+            $table->index('form_submission_id');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('form_submission_answers');
+    }
+};
