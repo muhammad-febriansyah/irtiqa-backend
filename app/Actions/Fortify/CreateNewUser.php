@@ -5,6 +5,7 @@ namespace App\Actions\Fortify;
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
@@ -22,12 +23,26 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             ...$this->profileRules(),
             'password' => $this->passwordRules(),
+            'recaptcha_token' => ['required', new \App\Rules\ReCaptcha],
         ])->validate();
 
-        return User::create([
-            'name' => $input['name'],
-            'email' => $input['email'],
-            'password' => $input['password'],
-        ]);
+        return DB::transaction(function () use ($input) {
+            $user = User::create([
+                'name' => $input['name'],
+                'email' => $input['email'],
+                'password' => $input['password'],
+            ]);
+
+            // Assign consultant role
+            $user->assignRole('consultant');
+
+            // Create consultant record (status: pending)
+            $user->consultant()->create([
+                'status' => 'pending',
+                'is_active' => false,
+            ]);
+
+            return $user;
+        });
     }
 }

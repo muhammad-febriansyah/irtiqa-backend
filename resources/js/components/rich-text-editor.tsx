@@ -40,6 +40,21 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
                 heading: {
                     levels: [1, 2, 3],
                 },
+                bulletList: {
+                    HTMLAttributes: {
+                        class: 'list-disc pl-6',
+                    },
+                },
+                orderedList: {
+                    HTMLAttributes: {
+                        class: 'list-decimal pl-6',
+                    },
+                },
+                listItem: {
+                    HTMLAttributes: {
+                        class: 'ml-2',
+                    },
+                },
             }),
             Underline,
             Link.configure({
@@ -59,7 +74,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         },
         editorProps: {
             attributes: {
-                class: 'prose prose-sm max-w-none min-h-[300px] p-4 focus:outline-none',
+                class: 'prose prose-sm max-w-none min-h-[300px] p-4 focus:outline-none prose-ul:list-disc prose-ul:pl-6 prose-ol:list-decimal prose-ol:pl-6 prose-li:ml-2',
             },
         },
     });

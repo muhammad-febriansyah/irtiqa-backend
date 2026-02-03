@@ -1,5 +1,5 @@
-import { usePage } from '@inertiajs/react';
-import { ChevronDown } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { ChevronDown, LogOut } from 'lucide-react';
 
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -89,10 +89,16 @@ export function AppSidebarHeader({
                                 </a>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
-                                <a href="/logout" className="w-full">
+                            <DropdownMenuItem className="text-destructive font-medium focus:text-destructive" asChild>
+                                <Link
+                                    href="/logout"
+                                    method="post"
+                                    as="button"
+                                    className="w-full flex items-center cursor-pointer"
+                                >
+                                    <LogOut className="mr-2 h-4 w-4" />
                                     Keluar
-                                </a>
+                                </Link>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

@@ -38,6 +38,7 @@ class SiteSettingController extends Controller
             'contact_email' => SystemSetting::get('contact_email', ''),
             'contact_phone' => SystemSetting::get('contact_phone', ''),
             'contact_address' => SystemSetting::get('contact_address', ''),
+            'contact_hours' => SystemSetting::get('contact_hours', 'Senin - Jumat | 09:00 - 17:00 WIB'),
 
             // Social Media
             'facebook_url' => SystemSetting::get('facebook_url', ''),
@@ -95,6 +96,7 @@ class SiteSettingController extends Controller
                 'contact_email' => ['value' => $request->contact_email, 'group' => 'site_contact'],
                 'contact_phone' => ['value' => $request->contact_phone, 'group' => 'site_contact'],
                 'contact_address' => ['value' => $request->contact_address, 'group' => 'site_contact'],
+                'contact_hours' => ['value' => $request->contact_hours, 'group' => 'site_contact'],
 
                 // Social Media
                 'facebook_url' => ['value' => $request->facebook_url, 'group' => 'site_social'],

@@ -43,12 +43,25 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'siteSettings' => [
                 'app_name' => SystemSetting::get('app_name', config('app.name')),
                 'tagline' => SystemSetting::get('tagline', ''),
                 'logo' => $this->getLogoUrl(),
                 'favicon' => $this->getFaviconUrl(),
+                'contact_email' => SystemSetting::get('contact_email', 'support@irtiqa.com'),
+                'contact_phone' => SystemSetting::get('contact_phone', '+62 812-3456-7890'),
+                'contact_address' => SystemSetting::get('contact_address', 'Jakarta, Indonesia'),
+                'contact_hours' => SystemSetting::get('contact_hours', 'Senin - Jumat | 09:00 - 17:00 WIB'),
+                'facebook_url' => SystemSetting::get('facebook_url', '#'),
+                'instagram_url' => SystemSetting::get('instagram_url', '#'),
+                'twitter_url' => SystemSetting::get('twitter_url', '#'),
+                'tiktok_url' => SystemSetting::get('tiktok_url', '#'),
+                'recaptcha_site_key' => config('services.recaptcha.site_key'),
+            ],
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
             ],
         ];
     }
@@ -61,7 +74,7 @@ class HandleInertiaRequests extends Middleware
         $logo = SystemSetting::get('logo');
 
         if ($logo && Storage::disk('public')->exists($logo)) {
-            return asset('storage/'.$logo);
+            return asset('storage/' . $logo);
         }
 
         return null;
@@ -75,7 +88,7 @@ class HandleInertiaRequests extends Middleware
         $favicon = SystemSetting::get('favicon');
 
         if ($favicon && Storage::disk('public')->exists($favicon)) {
-            return asset('storage/'.$favicon);
+            return asset('storage/' . $favicon);
         }
 
         return null;

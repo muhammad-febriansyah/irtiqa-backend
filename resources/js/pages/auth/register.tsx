@@ -9,12 +9,15 @@ import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
+import { useState } from 'react';
+import ReCaptchaField from '@/components/recaptcha-field';
 
 export default function Register() {
+    const [recaptchaToken, setRecaptchaToken] = useState('');
     return (
         <AuthLayout
-            title="Buat akun"
-            description="Masukkan detail Anda di bawah ini untuk membuat akun"
+            title="Daftar Sebagai Mitra"
+            description="Bergabunglah sebagai konsultan ahli untuk memberikan pendampingan psiko-spiritual"
         >
             <Head title="Daftar" />
             <Form
@@ -90,6 +93,13 @@ export default function Register() {
                                 />
                             </div>
 
+                            <ReCaptchaField
+                                onChange={(token) => setRecaptchaToken(token || '')}
+                                errorMessage={errors.recaptcha_token}
+                            />
+
+                            <input type="hidden" name="recaptcha_token" value={recaptchaToken} />
+
                             <Button
                                 type="submit"
                                 className="mt-2 w-full"
@@ -97,7 +107,7 @@ export default function Register() {
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}
-                                Buat akun
+                                Daftar Sekarang
                             </Button>
                         </div>
 

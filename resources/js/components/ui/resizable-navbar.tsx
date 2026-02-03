@@ -67,7 +67,7 @@ export const Navbar = ({ children, className }: NavbarProps) => {
         <div
             className={cn(
                 "fixed inset-x-0 mx-auto z-50 transition-all duration-500 ease-in-out w-full",
-                isScrolled ? "max-w-4xl top-10 px-4" : "max-w-6xl top-0 px-0",
+                isScrolled ? "max-w-6xl top-10 px-4" : "w-full top-0 px-0",
                 className
             )}
         >
@@ -97,14 +97,19 @@ export const NavBody = ({
                 ease: "easeInOut",
             }}
             className={cn(
-                "flex w-full relative transition-all duration-500 ease-in-out items-center justify-between",
+                "w-full relative transition-all duration-500 ease-in-out",
                 isScrolled
-                    ? "border border-[#E5E7EB] rounded-full bg-white/80 backdrop-blur-md shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1)] px-8 py-2"
-                    : "border-b border-transparent rounded-none bg-white px-8 py-4",
+                    ? "border border-[#E5E7EB] rounded-full bg-white/80 backdrop-blur-md shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1)] py-2"
+                    : "border-b border-[#E5E7EB]/10 rounded-none bg-white/95 backdrop-blur-sm py-4",
                 className
             )}
         >
-            {children}
+            <div className={cn(
+                "flex items-center justify-between mx-auto transition-all duration-500",
+                isScrolled ? "px-8" : "max-w-6xl px-8"
+            )}>
+                {children}
+            </div>
         </motion.div>
     );
 };
@@ -127,7 +132,7 @@ export const NavItems = ({ items, className }: NavItemsProps) => {
 
 export const MobileNav = ({ children, className }: MobileNavProps) => {
     return (
-        <div className={cn("flex md:hidden w-full items-center", className)}>
+        <div className={cn("flex lg:hidden w-full items-center", className)}>
             {children}
         </div>
     );

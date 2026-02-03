@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\AboutUsController;
 use App\Http\Controllers\Admin\LegalPageController;
+use App\Http\Controllers\Admin\ContactMessageController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
@@ -40,6 +41,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     // Legal Pages (Terms & Privacy)
     Route::get('legal/{slug}', [LegalPageController::class, 'edit'])->name('legal.edit');
     Route::post('legal/{slug}', [LegalPageController::class, 'update'])->name('legal.update');
+
+    // Contact Messages
+    Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
+    Route::get('contact-messages/{id}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
+    Route::patch('contact-messages/{id}/status', [ContactMessageController::class, 'updateStatus'])->name('contact-messages.update-status');
+    Route::post('contact-messages/{id}/reply', [ContactMessageController::class, 'reply'])->name('contact-messages.reply');
+    Route::delete('contact-messages/{id}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
 
     // Transactions
     Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');

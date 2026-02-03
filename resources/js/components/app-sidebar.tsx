@@ -8,6 +8,7 @@ import {
     HelpCircle,
     Image,
     LayoutGrid,
+    Mail,
     MessageSquare,
     Moon,
     Package,
@@ -90,6 +91,11 @@ const contentNavItems: NavItem[] = [
         title: 'FAQ',
         href: '/admin/faqs',
         icon: HelpCircle,
+    },
+    {
+        title: 'Pesan Kontak',
+        href: '/admin/contact-messages',
+        icon: Mail,
     },
     {
         title: 'Banner',

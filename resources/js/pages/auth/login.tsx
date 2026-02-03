@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { store } from '@/routes/login';
+import ReCaptchaField from '@/components/recaptcha-field';
 
 interface LoginProps {
     status?: string;
@@ -19,6 +20,7 @@ export default function Login({
     status,
 }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false);
+    const [recaptchaToken, setRecaptchaToken] = useState('');
 
     return (
         <AuthLayout
@@ -112,6 +114,13 @@ export default function Login({
                                 </Label>
                             </div>
                         </div>
+
+                        <ReCaptchaField
+                            onChange={(token) => setRecaptchaToken(token || '')}
+                            errorMessage={errors.recaptcha_token}
+                        />
+
+                        <input type="hidden" name="recaptcha_token" value={recaptchaToken} />
 
                         {/* Submit Button */}
                         <Button

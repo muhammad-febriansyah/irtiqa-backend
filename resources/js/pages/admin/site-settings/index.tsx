@@ -27,6 +27,7 @@ interface SiteSettings {
     contact_email: string;
     contact_phone: string;
     contact_address: string;
+    contact_hours: string;
     facebook_url: string;
     instagram_url: string;
     twitter_url: string;
@@ -68,6 +69,7 @@ export default function SiteSettingsIndex({ settings }: Props) {
         contact_email: settings.contact_email || '',
         contact_phone: settings.contact_phone || '',
         contact_address: settings.contact_address || '',
+        contact_hours: settings.contact_hours || '',
         facebook_url: settings.facebook_url || '',
         instagram_url: settings.instagram_url || '',
         twitter_url: settings.twitter_url || '',
@@ -286,6 +288,17 @@ export default function SiteSettingsIndex({ settings }: Props) {
                                             rows={3}
                                         />
                                         <InputError message={errors.contact_address} />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="contact_hours">Jam Operasional</Label>
+                                        <Input
+                                            id="contact_hours"
+                                            value={data.contact_hours}
+                                            onChange={(e) => setData('contact_hours', e.target.value)}
+                                            placeholder="Senin - Jumat | 09:00 - 17:00 WIB"
+                                        />
+                                        <InputError message={errors.contact_hours} />
                                     </div>
                                 </CardContent>
                             </Card>

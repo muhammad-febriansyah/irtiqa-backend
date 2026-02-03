@@ -27,6 +27,15 @@ export interface SiteSettings {
     tagline: string;
     logo: string | null;
     favicon: string | null;
+    contact_email: string;
+    contact_phone: string;
+    contact_address: string;
+    contact_hours: string;
+    facebook_url: string;
+    instagram_url: string;
+    twitter_url: string;
+    tiktok_url: string;
+    recaptcha_site_key: string | null;
 }
 
 export interface SharedData {
@@ -34,6 +43,10 @@ export interface SharedData {
     auth: Auth;
     sidebarOpen: boolean;
     siteSettings: SiteSettings;
+    flash: {
+        success: string | null;
+        error: string | null;
+    };
     [key: string]: unknown;
 }
 

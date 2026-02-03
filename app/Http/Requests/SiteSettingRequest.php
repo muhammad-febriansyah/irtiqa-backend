@@ -38,6 +38,7 @@ class SiteSettingRequest extends FormRequest
             'contact_email' => 'nullable|email|max:255',
             'contact_phone' => 'nullable|string|max:50',
             'contact_address' => 'nullable|string|max:500',
+            'contact_hours' => 'nullable|string|max:255',
 
             // Social Media
             'facebook_url' => 'nullable|url|max:255',
@@ -82,6 +83,7 @@ class SiteSettingRequest extends FormRequest
             'contact_email' => 'email kontak',
             'contact_phone' => 'telepon kontak',
             'contact_address' => 'alamat kontak',
+            'contact_hours' => 'jam operasional',
             'facebook_url' => 'URL Facebook',
             'instagram_url' => 'URL Instagram',
             'twitter_url' => 'URL Twitter',
