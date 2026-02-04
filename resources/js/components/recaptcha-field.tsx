@@ -28,7 +28,6 @@ export default function ReCaptchaField({ onChange, errorMessage }: ReCaptchaFiel
                     {errorMessage}
                 </p>
             )}
-            <input type="hidden" name="recaptcha_token" />
         </div>
     );
 }
