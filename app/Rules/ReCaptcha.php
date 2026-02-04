@@ -26,7 +26,16 @@ class ReCaptcha implements ValidationRule
             'remoteip' => request()->ip(),
         ]);
 
+        $responseData = $response->json();
+
+        // Log the response for debugging
+        \Log::info('ReCAPTCHA Response:', $responseData);
+
         if (!$response->json('success')) {
+            // Log error codes if available
+            if (isset($responseData['error-codes'])) {
+                \Log::error('ReCAPTCHA Error Codes:', $responseData['error-codes']);
+            }
             $fail('Verifikasi reCAPTCHA gagal. Silakan coba lagi.');
         }
     }
