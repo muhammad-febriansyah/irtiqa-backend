@@ -11,7 +11,6 @@ use Illuminate\Support\Str;
 
 class ConsultationTicket extends Model
 {
-    // Consultation type constants
     const TYPE_INITIAL_FREE = 'initial_free';
     const TYPE_PAID_PROGRAM = 'paid_program';
 

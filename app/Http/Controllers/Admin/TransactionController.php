@@ -15,24 +15,20 @@ class TransactionController extends Controller
         $query = Transaction::with(['user', 'consultant.user', 'package', 'ticket'])
             ->orderByDesc('created_at');
 
-        // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filter by payment method
         if ($request->filled('payment_method')) {
             $query->where('payment_method', $request->payment_method);
         }
 
-        // Filter pending verifications
         if ($request->boolean('pending_verification')) {
             $query->where('status', 'pending')
                 ->where('payment_method', 'manual_transfer')
                 ->whereNotNull('transfer_proof');
         }
 
-        // Search
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('invoice_number', 'like', "%{$request->search}%")

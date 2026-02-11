@@ -25,17 +25,14 @@ class ConsultantController extends Controller
             ->where('is_verified', true)
             ->where('is_active', true);
 
-        // Filter by specialist category
         if ($request->has('specialist_category')) {
             $query->where('specialist_category', $request->specialist_category);
         }
 
-        // Filter by level
         if ($request->has('level')) {
             $query->where('level', $request->level);
         }
 
-        // Search by name
         if ($request->has('search')) {
             $search = $request->search;
             $query->whereHas('user', function ($q) use ($search) {
@@ -43,7 +40,6 @@ class ConsultantController extends Controller
             });
         }
 
-        // Sort
         $sortBy = $request->get('sort_by', 'average_rating');
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
@@ -223,10 +219,8 @@ class ConsultantController extends Controller
         ]);
 
         DB::transaction(function () use ($consultant, $request) {
-            // Delete existing schedules
             $consultant->schedules()->delete();
 
-            // Create new schedules
             foreach ($request->schedules as $schedule) {
                 $consultant->schedules()->create($schedule);
             }
@@ -238,6 +232,66 @@ class ConsultantController extends Controller
             'success' => true,
             'message' => 'Schedule updated successfully',
             'data' => new ConsultantResource($consultant),
+        ]);
+    }
+
+    /**
+     * Get a single ticket assigned to the consultant
+     */
+    public function ticketDetail(Request $request, int $id): JsonResponse
+    {
+        $consultant = $request->user()->consultant;
+
+        if (!$consultant) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not a consultant',
+            ], 403);
+        }
+
+        $ticket = ConsultationTicket::with(['user', 'category'])
+            ->where('consultant_id', $consultant->id)
+            ->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => new ConsultationTicketResource($ticket),
+        ]);
+    }
+
+    /**
+     * Consultant responds to a ticket (saves notes and classification)
+     */
+    public function respondToTicket(Request $request, int $id): JsonResponse
+    {
+        $consultant = $request->user()->consultant;
+
+        if (!$consultant) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not a consultant',
+            ], 403);
+        }
+
+        $ticket = ConsultationTicket::where('consultant_id', $consultant->id)
+            ->findOrFail($id);
+
+        $request->validate([
+            'classification' => ['sometimes', 'string', 'max:255'],
+            'notes' => ['sometimes', 'string'],
+        ]);
+
+        $ticket->update([
+            'consultant_notes' => $request->notes ?? $ticket->consultant_notes,
+            'screening_conclusion' => $request->classification ?? $ticket->screening_conclusion,
+        ]);
+
+        $ticket->load(['user', 'category']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Jawaban awal berhasil dikirim',
+            'data' => new ConsultationTicketResource($ticket),
         ]);
     }
 

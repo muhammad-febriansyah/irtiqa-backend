@@ -1,4 +1,5 @@
 import '../css/app.css';
+import './bootstrap';
 
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
@@ -26,4 +27,12 @@ createInertiaApp({
     progress: {
         color: '#4B5563',
     },
+}).then(() => {
+    // Handle Inertia 419 errors globally
+    document.addEventListener('inertia:error', (event: any) => {
+        if (event.detail.response?.status === 419) {
+            console.warn('CSRF token expired, reloading page...');
+            window.location.reload();
+        }
+    });
 });

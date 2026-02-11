@@ -4,7 +4,6 @@ namespace App\Services;
 
 class DreamClassificationService
 {
-    // Classification types
     const CLASSIFICATION_KHAYALI_NAFSANI = 'khayali_nafsani'; // Mundane/everyday dreams
     const CLASSIFICATION_EMOTIONAL = 'emotional'; // Emotionally-driven dreams
     const CLASSIFICATION_SENSITIVE = 'sensitive_indication'; // May need consultation
@@ -21,7 +20,6 @@ class DreamClassificationService
     {
         $content = strtolower($content);
 
-        // Check for sensitive/concerning indicators first
         $sensitiveScore = $this->checkSensitiveIndicators($content);
         if ($sensitiveScore > 0.7) {
             return [
@@ -31,7 +29,6 @@ class DreamClassificationService
             ];
         }
 
-        // Check for emotional indicators
         $emotionalScore = $this->checkEmotionalIndicators($content, $context);
         if ($emotionalScore > 0.6) {
             return [
@@ -41,7 +38,6 @@ class DreamClassificationService
             ];
         }
 
-        // Check for moderate sensitivity
         if ($sensitiveScore > 0.4) {
             return [
                 'classification' => self::CLASSIFICATION_SENSITIVE,
@@ -50,7 +46,6 @@ class DreamClassificationService
             ];
         }
 
-        // Default to khayali/nafsani (mundane)
         return [
             'classification' => self::CLASSIFICATION_KHAYALI_NAFSANI,
             'confidence' => 0.8,
@@ -64,7 +59,6 @@ class DreamClassificationService
     private function checkSensitiveIndicators(string $content): float
     {
         $sensitiveKeywords = [
-            // Spiritual/religious concerns
             'jin',
             'sihir',
             'santet',
@@ -76,7 +70,6 @@ class DreamClassificationService
             'setan',
             'iblis',
 
-            // Psychological concerns
             'bunuh diri',
             'mati',
             'kematian',
@@ -92,7 +85,6 @@ class DreamClassificationService
             'teror',
             'menakutkan',
 
-            // Trauma indicators
             'diperkosa',
             'dilecehkan',
             'kekerasan',
@@ -148,7 +140,6 @@ class DreamClassificationService
 
         $baseScore = min($matchCount / 4, 0.7);
 
-        // Boost score if emotional_condition indicates stress
         if (isset($context['emotional_condition'])) {
             $stressfulConditions = ['sad', 'anxious', 'angry'];
             if (in_array($context['emotional_condition'], $stressfulConditions)) {

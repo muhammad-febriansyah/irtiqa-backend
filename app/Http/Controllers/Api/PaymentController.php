@@ -42,8 +42,6 @@ class PaymentController extends Controller
         $merchantOrderId = $request->get('merchantOrderId');
         $resultCode = $request->get('resultCode');
 
-        // You might want to redirect to a frontend page here
-        // For API, we just return status
         return response()->json([
             'success' => $resultCode === '00',
             'order_id' => $merchantOrderId,

@@ -1,5 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
-import { Eye, EyeOff, Info, Save } from 'lucide-react';
+import { Head, useForm, router } from '@inertiajs/react';
+import { Eye, EyeOff, Info, Save, Send } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -7,7 +7,15 @@ import FileInput from '@/components/file-input';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
@@ -38,9 +46,9 @@ interface SiteSettings {
     mail_username: string;
     mail_password: string;
     mail_api_key: string;
-    // WhatsApp Settings
-    whatsapp_number: string;
+    // WhatsApp Settings (NotifWaBiz)
     whatsapp_api_key: string;
+    whatsapp_sender: string;
     // Duitku Payment Settings
     duitku_merchant_code: string;
     duitku_api_key: string;
@@ -56,6 +64,13 @@ export default function SiteSettingsIndex({ settings }: Props) {
     const [showApiKey, setShowApiKey] = useState(false);
     const [showWhatsAppApiKey, setShowWhatsAppApiKey] = useState(false);
     const [showDuitkuApiKey, setShowDuitkuApiKey] = useState(false);
+
+    // Test modal states
+    const [showEmailTestModal, setShowEmailTestModal] = useState(false);
+    const [showWhatsAppTestModal, setShowWhatsAppTestModal] = useState(false);
+    const [testEmail, setTestEmail] = useState('');
+    const [testPhone, setTestPhone] = useState('');
+    const [isTesting, setIsTesting] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm({
         app_name: settings.app_name || '',
@@ -79,10 +94,10 @@ export default function SiteSettingsIndex({ settings }: Props) {
         mail_from_address: settings.mail_from_address || '',
         mail_username: settings.mail_username || '',
         mail_password: settings.mail_password || '',
-        mail_api_key: settings.mail_api_key || '',
-        // WhatsApp Settings
-        whatsapp_number: settings.whatsapp_number || '',
+        mail_api_key: settings.mail_api_key || '0e0308f58826a968bcb2cf9007135815',
+        // WhatsApp Settings (NotifWaBiz)
         whatsapp_api_key: settings.whatsapp_api_key || '',
+        whatsapp_sender: settings.whatsapp_sender || '',
         // Duitku Payment Settings
         duitku_merchant_code: settings.duitku_merchant_code || '',
         duitku_api_key: settings.duitku_api_key || '',
@@ -93,13 +108,97 @@ export default function SiteSettingsIndex({ settings }: Props) {
         e.preventDefault();
         post('/admin/site-settings', {
             forceFormData: true,
-            onSuccess: () => {
-                toast.success('Pengaturan berhasil disimpan');
-            },
-            onError: () => {
-                toast.error('Gagal menyimpan pengaturan');
-            },
         });
+    };
+
+    const handleTestEmail = async () => {
+        if (!testEmail) {
+            toast.error('Silakan masukkan email tujuan');
+            return;
+        }
+
+        setIsTesting(true);
+
+        try {
+            const response = await fetch('/admin/site-settings/test-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+                body: JSON.stringify({
+                    test_email: testEmail,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Email test failed:', response.status, errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                toast.success(result.message);
+                setShowEmailTestModal(false);
+                setTestEmail('');
+            } else {
+                console.error('Email test error:', result);
+                toast.error(result.message || 'Gagal mengirim email test');
+            }
+        } catch (error) {
+            console.error('Email test exception:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan saat mengirim email test';
+            toast.error(errorMessage);
+        } finally {
+            setIsTesting(false);
+        }
+    };
+
+    const handleTestWhatsApp = async () => {
+        if (!testPhone) {
+            toast.error('Silakan masukkan nomor WhatsApp tujuan');
+            return;
+        }
+
+        setIsTesting(true);
+
+        try {
+            const response = await fetch('/admin/site-settings/test-whatsapp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+                body: JSON.stringify({
+                    test_phone: testPhone,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('WhatsApp test failed:', response.status, errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                toast.success(result.message);
+                setShowWhatsAppTestModal(false);
+                setTestPhone('');
+            } else {
+                console.error('WhatsApp test error:', result);
+                toast.error(result.message || 'Gagal mengirim pesan WhatsApp test');
+            }
+        } catch (error) {
+            console.error('WhatsApp test exception:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan saat mengirim pesan WhatsApp';
+            toast.error(errorMessage);
+        } finally {
+            setIsTesting(false);
+        }
     };
 
     const breadcrumbs = [
@@ -379,92 +478,36 @@ export default function SiteSettingsIndex({ settings }: Props) {
 
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Informasi Email</CardTitle>
+                                    <CardTitle>Informasi Email (Mailketing)</CardTitle>
                                     <CardDescription>
-                                        Masukkan detail email pengirim dan kredensial
+                                        Masukkan detail email pengirim dan token Mailketing
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <div className="grid gap-4 md:grid-cols-2">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="mail_from_name">Nama Pengirim</Label>
-                                            <Input
-                                                id="mail_from_name"
-                                                value={data.mail_from_name}
-                                                onChange={(e) => setData('mail_from_name', e.target.value)}
-                                                placeholder="IRTIQA"
-                                            />
-                                            <p className="text-xs text-muted-foreground">
-                                                Nama yang muncul sebagai pengirim email
-                                            </p>
-                                            <InputError message={errors.mail_from_name} />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label htmlFor="mail_from_address">Email Pengirim</Label>
-                                            <Input
-                                                id="mail_from_address"
-                                                type="email"
-                                                value={data.mail_from_address}
-                                                onChange={(e) => setData('mail_from_address', e.target.value)}
-                                                placeholder="noreply@irtiqa.com"
-                                            />
-                                            <p className="text-xs text-muted-foreground">
-                                                Alamat email yang digunakan sebagai pengirim
-                                            </p>
-                                            <InputError message={errors.mail_from_address} />
-                                        </div>
-                                    </div>
-
                                     <div className="space-y-2">
-                                        <Label htmlFor="mail_username">Username</Label>
+                                        <Label htmlFor="mail_from_address">Nama Email</Label>
                                         <Input
-                                            id="mail_username"
-                                            value={data.mail_username}
-                                            onChange={(e) => setData('mail_username', e.target.value)}
-                                            placeholder="Masukkan username email"
-                                            className="font-mono"
+                                            id="mail_from_address"
+                                            type="email"
+                                            value={data.mail_from_address}
+                                            onChange={(e) => setData('mail_from_address', e.target.value)}
+                                            placeholder="noreply@irtiqa.com"
                                         />
                                         <p className="text-xs text-muted-foreground">
-                                            Username untuk SMTP atau layanan email
+                                            Alamat email yang digunakan sebagai pengirim
                                         </p>
-                                        <InputError message={errors.mail_username} />
+                                        <InputError message={errors.mail_from_address} />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="mail_password">Password</Label>
-                                        <div className="relative">
-                                            <Input
-                                                id="mail_password"
-                                                type={showPassword ? 'text' : 'password'}
-                                                value={data.mail_password}
-                                                onChange={(e) => setData('mail_password', e.target.value)}
-                                                placeholder="Masukkan password email"
-                                                className="pr-10 font-mono"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                                            >
-                                                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                                            </button>
-                                        </div>
-                                        <p className="text-xs text-muted-foreground">
-                                            Password untuk autentikasi email
-                                        </p>
-                                        <InputError message={errors.mail_password} />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="mail_api_key">API Key (Opsional)</Label>
+                                        <Label htmlFor="mail_api_key">Token</Label>
                                         <div className="relative">
                                             <Input
                                                 id="mail_api_key"
                                                 type={showApiKey ? 'text' : 'password'}
                                                 value={data.mail_api_key}
                                                 onChange={(e) => setData('mail_api_key', e.target.value)}
-                                                placeholder="Masukkan API Key jika menggunakan layanan API"
+                                                placeholder="Masukkan Token Mailketing"
                                                 className="pr-10 font-mono"
                                             />
                                             <button
@@ -476,11 +519,22 @@ export default function SiteSettingsIndex({ settings }: Props) {
                                             </button>
                                         </div>
                                         <p className="text-xs text-muted-foreground">
-                                            Untuk layanan seperti SendGrid, Mailgun, Postmark, dll.
+                                            Token API dari layanan Mailketing
                                         </p>
                                         <InputError message={errors.mail_api_key} />
                                     </div>
                                 </CardContent>
+                                <CardFooter className="border-t bg-muted/50 px-6 py-4">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setShowEmailTestModal(true)}
+                                        className="gap-2"
+                                    >
+                                        <Send className="size-4" />
+                                        Test Email
+                                    </Button>
+                                </CardFooter>
                             </Card>
                         </TabsContent>
 
@@ -501,26 +555,12 @@ export default function SiteSettingsIndex({ settings }: Props) {
 
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Informasi WhatsApp</CardTitle>
+                                    <CardTitle>Informasi WhatsApp (NotifWaBiz)</CardTitle>
                                     <CardDescription>
-                                        Masukkan nomor telepon dan API key untuk layanan WhatsApp
+                                        Masukkan API key dan nomor pengirim dari NotifWaBiz (m2.notifwabiz.my.id)
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="whatsapp_number">Nomor WhatsApp</Label>
-                                        <Input
-                                            id="whatsapp_number"
-                                            value={data.whatsapp_number}
-                                            onChange={(e) => setData('whatsapp_number', e.target.value)}
-                                            placeholder="+62812345678900"
-                                        />
-                                        <p className="text-xs text-muted-foreground">
-                                            Format: +62 diikuti nomor telepon tanpa spasi
-                                        </p>
-                                        <InputError message={errors.whatsapp_number} />
-                                    </div>
-
                                     <div className="space-y-2">
                                         <Label htmlFor="whatsapp_api_key">API Key WhatsApp</Label>
                                         <div className="relative">
@@ -529,7 +569,7 @@ export default function SiteSettingsIndex({ settings }: Props) {
                                                 type={showWhatsAppApiKey ? 'text' : 'password'}
                                                 value={data.whatsapp_api_key}
                                                 onChange={(e) => setData('whatsapp_api_key', e.target.value)}
-                                                placeholder="Masukkan API Key WhatsApp"
+                                                placeholder="Masukkan API Key dari NotifWaBiz"
                                                 className="pr-10 font-mono"
                                             />
                                             <button
@@ -541,11 +581,36 @@ export default function SiteSettingsIndex({ settings }: Props) {
                                             </button>
                                         </div>
                                         <p className="text-xs text-muted-foreground">
-                                            API Key dari layanan WhatsApp Business API (Fonnte, Wablas, dll.)
+                                            API Key dari dashboard NotifWaBiz Anda
                                         </p>
                                         <InputError message={errors.whatsapp_api_key} />
                                     </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="whatsapp_sender">Nomor Pengirim (Sender)</Label>
+                                        <Input
+                                            id="whatsapp_sender"
+                                            value={data.whatsapp_sender}
+                                            onChange={(e) => setData('whatsapp_sender', e.target.value)}
+                                            placeholder="62812345678900"
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            Nomor WhatsApp yang terdaftar di NotifWaBiz (format: 628xxx tanpa +)
+                                        </p>
+                                        <InputError message={errors.whatsapp_sender} />
+                                    </div>
                                 </CardContent>
+                                <CardFooter className="border-t bg-muted/50 px-6 py-4">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setShowWhatsAppTestModal(true)}
+                                        className="gap-2"
+                                    >
+                                        <Send className="size-4" />
+                                        Test WhatsApp
+                                    </Button>
+                                </CardFooter>
                             </Card>
                         </TabsContent>
                         {/* Tab 7: Pembayaran (Duitku) */}
@@ -647,6 +712,108 @@ export default function SiteSettingsIndex({ settings }: Props) {
                         </Button>
                     </div>
                 </form>
+
+                {/* Email Test Modal */}
+                <Dialog open={showEmailTestModal} onOpenChange={setShowEmailTestModal}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Test Email</DialogTitle>
+                            <DialogDescription>
+                                Kirim email test untuk memastikan konfigurasi email sudah benar
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="test_email">Email Tujuan</Label>
+                                <Input
+                                    id="test_email"
+                                    type="email"
+                                    value={testEmail}
+                                    onChange={(e) => setTestEmail(e.target.value)}
+                                    placeholder="test@example.com"
+                                    onKeyDown={(e) => e.key === 'Enter' && handleTestEmail()}
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Masukkan email yang ingin menerima pesan test
+                                </p>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setShowEmailTestModal(false)}
+                                disabled={isTesting}
+                            >
+                                Batal
+                            </Button>
+                            <Button type="button" onClick={handleTestEmail} disabled={isTesting}>
+                                {isTesting ? (
+                                    <>
+                                        <Spinner className="mr-2" />
+                                        Mengirim...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send className="mr-2 size-4" />
+                                        Kirim Test Email
+                                    </>
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                {/* WhatsApp Test Modal */}
+                <Dialog open={showWhatsAppTestModal} onOpenChange={setShowWhatsAppTestModal}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Test WhatsApp</DialogTitle>
+                            <DialogDescription>
+                                Kirim pesan WhatsApp test untuk memastikan konfigurasi WhatsApp gateway sudah benar
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="test_phone">Nomor WhatsApp Tujuan</Label>
+                                <Input
+                                    id="test_phone"
+                                    type="text"
+                                    value={testPhone}
+                                    onChange={(e) => setTestPhone(e.target.value)}
+                                    placeholder="628123456789"
+                                    onKeyDown={(e) => e.key === 'Enter' && handleTestWhatsApp()}
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Format: 628xxx tanpa tanda + atau spasi
+                                </p>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setShowWhatsAppTestModal(false)}
+                                disabled={isTesting}
+                            >
+                                Batal
+                            </Button>
+                            <Button type="button" onClick={handleTestWhatsApp} disabled={isTesting}>
+                                {isTesting ? (
+                                    <>
+                                        <Spinner className="mr-2" />
+                                        Mengirim...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send className="mr-2 size-4" />
+                                        Kirim Test WhatsApp
+                                    </>
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );

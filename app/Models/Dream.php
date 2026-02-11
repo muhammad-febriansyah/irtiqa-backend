@@ -48,10 +48,8 @@ class Dream extends Model
 
     public function classify(): void
     {
-        // Simple classification logic - can be enhanced with AI
         $content = strtolower($this->dream_content);
 
-        // Keywords that might indicate need for consultation
         $sensitiveKeywords = ['takut', 'menakutkan', 'kematian', 'ancaman', 'gelisah'];
 
         $hasSensitiveContent = false;

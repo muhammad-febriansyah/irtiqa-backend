@@ -37,15 +37,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Duitku Payment Callback & Return (Public)
-Route::prefix('payment')->group(function () {
-    Route::post('callback', [PaymentController::class, 'callback'])->name('payment.callback');
-    Route::get('return', [PaymentController::class, 'return'])->name('payment.return');
-    Route::get('methods', [PaymentController::class, 'methods'])->name('payment.methods');
-});
-
 // Public routes
 Route::prefix('v1')->group(function () {
+
+    // Duitku Payment Callback & Return (Public)
+    Route::prefix('payment')->group(function () {
+        Route::post('callback', [PaymentController::class, 'callback'])->name('payment.callback');
+        Route::get('return', [PaymentController::class, 'return'])->name('payment.return');
+        Route::get('methods', [PaymentController::class, 'methods'])->name('payment.methods');
+    });
 
     // Authentication routes
     Route::prefix('auth')->group(function () {
@@ -53,6 +53,10 @@ Route::prefix('v1')->group(function () {
         Route::post('login', [AuthController::class, 'login']);
         Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('reset-password', [AuthController::class, 'resetPassword']);
+
+        // OTP routes
+        Route::post('otp/send', [AuthController::class, 'sendOtp']);
+        Route::post('otp/verify', [AuthController::class, 'verifyOtp']);
     });
 
     // Public content
@@ -220,10 +224,21 @@ Route::prefix('v1')->group(function () {
             Route::prefix('consultant')->group(function () {
                 Route::get('dashboard', [ConsultantController::class, 'dashboard']);
                 Route::get('consultations', [ConsultantController::class, 'consultations']);
+                Route::get('tickets/{id}', [ConsultantController::class, 'ticketDetail']);
+                Route::post('tickets/{id}/respond', [ConsultantController::class, 'respondToTicket']);
                 Route::get('programs', [ConsultantController::class, 'programs']);
                 Route::get('schedule', [ConsultantController::class, 'getSchedule']);
                 Route::post('schedule', [ConsultantController::class, 'updateSchedule']);
                 Route::get('earnings', [ConsultantController::class, 'earnings']);
+
+                // Profile Management
+                Route::prefix('profile')->group(function () {
+                    Route::get('', [\App\Http\Controllers\Api\ConsultantProfileApiController::class, 'getProfile']);
+                    Route::put('', [\App\Http\Controllers\Api\ConsultantProfileApiController::class, 'updateProfile']);
+                    Route::post('avatar', [\App\Http\Controllers\Api\ConsultantProfileApiController::class, 'updateAvatar']);
+                    Route::put('specializations', [\App\Http\Controllers\Api\ConsultantProfileApiController::class, 'updateSpecializations']);
+                    Route::get('categories', [\App\Http\Controllers\Api\ConsultantProfileApiController::class, 'getCategories']);
+                });
             });
         });
 

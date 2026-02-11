@@ -71,7 +71,6 @@ class FormTemplate extends Model
      */
     public function activate(): bool
     {
-        // If setting as default, deactivate other defaults in same category
         if ($this->is_default && $this->category_id) {
             static::where('category_id', $this->category_id)
                 ->where('id', '!=', $this->id)
@@ -98,13 +97,11 @@ class FormTemplate extends Model
         $newTemplate->version = 1;
         $newTemplate->save();
 
-        // Duplicate fields
         foreach ($this->fields as $field) {
             $newField = $field->replicate();
             $newField->form_template_id = $newTemplate->id;
             $newField->save();
 
-            // Duplicate options
             foreach ($field->options as $option) {
                 $newOption = $option->replicate();
                 $newOption->form_field_id = $newField->id;

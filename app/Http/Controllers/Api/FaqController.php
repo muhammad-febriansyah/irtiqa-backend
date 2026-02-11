@@ -18,7 +18,6 @@ class FaqController extends Controller
         $query = Faq::where('is_published', true)
             ->orderBy('order', 'asc');
 
-        // Filter by category
         if ($request->has('category')) {
             $query->where('category', $request->category);
         }
@@ -39,7 +38,6 @@ class FaqController extends Controller
         $faq = Faq::where('is_published', true)
             ->findOrFail($id);
 
-        // Increment views count
         $faq->increment('views_count');
 
         return response()->json([

@@ -70,7 +70,6 @@ class FormField extends Model
             $rules[] = 'required';
         }
 
-        // Add type-specific rules
         switch ($this->field_type) {
             case 'email':
                 $rules[] = 'email';
@@ -92,7 +91,6 @@ class FormField extends Model
             return true;
         }
 
-        // Example: ['field_key' => 'question_1', 'operator' => 'equals', 'value' => 'yes']
         $condition = $this->conditional_logic;
         $dependentFieldKey = $condition['field_key'] ?? null;
         $operator = $condition['operator'] ?? 'equals';

@@ -19,6 +19,8 @@ class TransactionResource extends JsonResource
             'invoice_number' => $this->invoice_number,
             'user_id' => $this->user_id,
             'package' => new PackageResource($this->whenLoaded('package')),
+            'program' => new ProgramResource($this->whenLoaded('program')),
+            'program_id' => $this->program?->id,
             'amount' => $this->amount,
             'admin_fee' => $this->admin_fee,
             'total_amount' => $this->total_amount,

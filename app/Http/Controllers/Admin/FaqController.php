@@ -13,17 +13,14 @@ class FaqController extends Controller
     {
         $query = Faq::orderBy('order')->orderByDesc('created_at');
 
-        // Filter by category
         if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
 
-        // Filter by published status
         if ($request->filled('is_published')) {
             $query->where('is_published', $request->boolean('is_published'));
         }
 
-        // Search
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('question', 'like', "%{$request->search}%")
@@ -46,7 +43,6 @@ class FaqController extends Controller
             ];
         });
 
-        // Get unique categories
         $categories = Faq::distinct()->pluck('category')->filter()->toArray();
 
         return Inertia::render('admin/faqs/index', [

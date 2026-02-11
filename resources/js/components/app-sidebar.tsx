@@ -1,6 +1,8 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpenText,
+    Bell,
+    CheckCircle2,
     ClipboardList,
     CreditCard,
     FolderTree,
@@ -56,6 +58,11 @@ const serviceNavItems: NavItem[] = [
         href: '/admin/transactions',
         icon: CreditCard,
     },
+    {
+        title: 'Approval Transaksi',
+        href: '/admin/transactions/approval',
+        icon: CheckCircle2,
+    },
 ];
 
 const personnelNavItems: NavItem[] = [
@@ -96,6 +103,11 @@ const contentNavItems: NavItem[] = [
         title: 'Pesan Kontak',
         href: '/admin/contact-messages',
         icon: Mail,
+    },
+    {
+        title: 'Pengumuman',
+        href: '/admin/announcements',
+        icon: Bell,
     },
     {
         title: 'Banner',

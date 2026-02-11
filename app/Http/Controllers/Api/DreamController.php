@@ -56,7 +56,6 @@ class DreamController extends Controller
             'disclaimer_checked' => $request->disclaimer_checked,
         ]);
 
-        // Auto-classify dream
         $this->classifyDream($dream);
 
         return response()->json([
@@ -104,7 +103,6 @@ class DreamController extends Controller
             'emotional_condition',
         ]));
 
-        // Re-classify dream
         $this->classifyDream($dream);
 
         return response()->json([

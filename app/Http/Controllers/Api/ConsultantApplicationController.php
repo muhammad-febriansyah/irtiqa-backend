@@ -39,7 +39,6 @@ class ConsultantApplicationController extends Controller
 
         $user = $request->user();
 
-        // Check if user already has pending or approved application
         $existingApplication = ConsultantApplication::where('user_id', $user->id)
             ->whereIn('status', ['pending', 'approved'])
             ->first();
@@ -53,14 +52,12 @@ class ConsultantApplicationController extends Controller
             ], 400);
         }
 
-        // Handle file upload
         $certificationFilePath = null;
         if ($request->hasFile('certification_file')) {
             $certificationFilePath = $request->file('certification_file')
                 ->store('consultant-certifications', 'public');
         }
 
-        // Create application
         $application = ConsultantApplication::create([
             'user_id' => $user->id,
             'full_name' => $request->full_name,
@@ -125,12 +122,10 @@ class ConsultantApplicationController extends Controller
         $query = ConsultantApplication::with(['user', 'reviewedByAdmin'])
             ->orderBy('created_at', 'desc');
 
-        // Filter by status
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
-        // Search by name
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -139,7 +134,6 @@ class ConsultantApplicationController extends Controller
             });
         }
 
-        // Pagination
         $perPage = $request->get('per_page', 20);
         $applications = $query->paginate($perPage);
 

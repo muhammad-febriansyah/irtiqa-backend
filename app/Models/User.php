@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -127,6 +127,33 @@ class User extends Authenticatable
         return $this->hasMany(JournalEntry::class);
     }
 
+    public function announcements(): BelongsToMany
+    {
+        return $this->belongsToMany(Announcement::class, 'announcement_user')
+            ->withPivot(['is_read', 'is_dismissed', 'clicked', 'read_at', 'dismissed_at'])
+            ->withTimestamps();
+    }
+
+    public function readAnnouncements(): BelongsToMany
+    {
+        return $this->announcements()->wherePivot('is_read', true);
+    }
+
+    public function unreadAnnouncements(): BelongsToMany
+    {
+        return $this->announcements()->wherePivot('is_read', false);
+    }
+
+    public function createdAnnouncements(): HasMany
+    {
+        return $this->hasMany(Announcement::class, 'created_by');
+    }
+
+    public function updatedAnnouncements(): HasMany
+    {
+        return $this->hasMany(Announcement::class, 'updated_by');
+    }
+
     /**
      * Check if user is a consultant
      */
@@ -205,15 +232,36 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute(): string
     {
         if ($this->avatar) {
-            // If avatar is a full URL (external)
             if (filter_var($this->avatar, FILTER_VALIDATE_URL)) {
                 return $this->avatar;
             }
-            // If avatar is a local file
             return asset('storage/' . $this->avatar);
         }
 
-        // Default avatar using UI Avatars
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=7F9CF5&background=EBF4FF';
+    }
+
+    /**
+     * Route notifications for WhatsApp channel
+     */
+    public function routeNotificationForWhatsApp(): ?string
+    {
+        return $this->profile->phone ?? $this->phone ?? null;
+    }
+
+    /**
+     * Route notifications for Mail/Mailketing channel
+     */
+    public function routeNotificationForMail(): ?string
+    {
+        return $this->email;
+    }
+
+    /**
+     * Route notifications for Mailketing channel
+     */
+    public function routeNotificationForMailketing(): ?string
+    {
+        return $this->email;
     }
 }

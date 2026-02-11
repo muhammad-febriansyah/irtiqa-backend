@@ -110,7 +110,6 @@ class PrivacyController extends Controller
     {
         $user = $request->user();
 
-        // Gather all user data
         $data = [
             'user' => [
                 'id' => $user->id,
@@ -128,7 +127,6 @@ class PrivacyController extends Controller
             'disclaimer_acceptances' => \App\Models\DisclaimerAcceptance::where('user_id', $user->id)->get(),
         ];
 
-        // Log the export request
         \App\Models\AuditLog::create([
             'user_id' => $user->id,
             'action' => 'data_export',
@@ -165,7 +163,6 @@ class PrivacyController extends Controller
 
         $user = $request->user();
 
-        // Verify password
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
@@ -173,7 +170,6 @@ class PrivacyController extends Controller
             ], 401);
         }
 
-        // Check for active programs
         $activePrograms = $user->programs()
             ->whereIn('status', ['active', 'pending'])
             ->count();
@@ -188,7 +184,6 @@ class PrivacyController extends Controller
             ], 400);
         }
 
-        // Log deletion request
         \App\Models\AuditLog::create([
             'user_id' => $user->id,
             'action' => 'account_deletion_requested',
@@ -196,9 +191,7 @@ class PrivacyController extends Controller
             'ip_address' => $request->ip(),
         ]);
 
-        // Anonymize user data instead of hard delete
         DB::transaction(function () use ($user) {
-            // Anonymize personal data
             $user->update([
                 'name' => 'Deleted User ' . $user->id,
                 'email' => 'deleted_' . $user->id . '@irtiqa.local',
@@ -206,7 +199,6 @@ class PrivacyController extends Controller
                 'avatar' => null,
             ]);
 
-            // Anonymize profile
             if ($user->profile) {
                 $user->profile->update([
                     'pseudonym' => null,
@@ -217,10 +209,8 @@ class PrivacyController extends Controller
                 ]);
             }
 
-            // Delete journal entries (encrypted, safe to delete)
             \App\Models\JournalEntry::where('user_id', $user->id)->delete();
 
-            // Revoke all tokens
             $user->tokens()->delete();
         });
 
@@ -266,7 +256,6 @@ class PrivacyController extends Controller
     {
         $user = $request->user();
 
-        // Get all user data
         $data = [
             'user' => [
                 'id' => $user->id,

@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\AboutUsController;
 use App\Http\Controllers\Admin\LegalPageController;
 use App\Http\Controllers\Admin\ContactMessageController;
+use App\Http\Controllers\Admin\AnnouncementController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
@@ -48,6 +49,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::patch('contact-messages/{id}/status', [ContactMessageController::class, 'updateStatus'])->name('contact-messages.update-status');
     Route::post('contact-messages/{id}/reply', [ContactMessageController::class, 'reply'])->name('contact-messages.reply');
     Route::delete('contact-messages/{id}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
+
+    // Transaction Approval Flow (Admin/Kyai)
+    Route::prefix('transactions/approval')->name('transactions.approval.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\TransactionApprovalController::class, 'index'])->name('index');
+        Route::get('/{transaction}', [\App\Http\Controllers\Admin\TransactionApprovalController::class, 'show'])->name('show');
+        Route::post('/{transaction}/mark-under-review', [\App\Http\Controllers\Admin\TransactionApprovalController::class, 'markUnderReview'])->name('mark-under-review');
+        Route::post('/{transaction}/assign-consultant', [\App\Http\Controllers\Admin\TransactionApprovalController::class, 'assignConsultant'])->name('assign-consultant');
+        Route::post('/{transaction}/approve', [\App\Http\Controllers\Admin\TransactionApprovalController::class, 'approve'])->name('approve');
+        Route::post('/{transaction}/reject', [\App\Http\Controllers\Admin\TransactionApprovalController::class, 'reject'])->name('reject');
+    });
 
     // Transactions
     Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
@@ -83,6 +94,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('site-settings', [SiteSettingController::class, 'index'])->name('site-settings.index');
     Route::post('site-settings', [SiteSettingController::class, 'update'])->name('site-settings.update');
     Route::post('site-settings/test-email', [SiteSettingController::class, 'testEmail'])->name('site-settings.test-email');
+    Route::post('site-settings/test-whatsapp', [SiteSettingController::class, 'testWhatsApp'])->name('site-settings.test-whatsapp');
 
     // Tickets (Consultation Tickets Management)
     Route::get('tickets', [TicketController::class, 'index'])->name('tickets.index');
@@ -118,4 +130,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('consultant-applications/{consultantApplication}', [AdminConsultantApplicationController::class, 'show'])->name('consultant-applications.show');
     Route::post('consultant-applications/{consultantApplication}/approve', [AdminConsultantApplicationController::class, 'approve'])->name('consultant-applications.approve');
     Route::post('consultant-applications/{consultantApplication}/reject', [AdminConsultantApplicationController::class, 'reject'])->name('consultant-applications.reject');
+
+    // Announcements
+    Route::resource('announcements', AnnouncementController::class)->except(['show', 'create', 'edit']);
+    Route::post('announcements/{announcement}/toggle-publish', [AnnouncementController::class, 'togglePublish'])->name('announcements.toggle-publish');
 });

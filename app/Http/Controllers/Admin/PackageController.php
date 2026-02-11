@@ -75,7 +75,6 @@ class PackageController extends Controller
      */
     public function show(Package $package)
     {
-        // Load related data if needed (e.g., transactions using this package)
         return Inertia::render('admin/packages/show', [
             'package' => $package,
         ]);

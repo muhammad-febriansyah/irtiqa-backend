@@ -50,8 +50,6 @@ class TransactionController extends Controller
 
         $package = Package::findOrFail($request->package_id);
 
-        // Generate invoice number - Model boot handles this but we can be explicit or let model handle it
-        // Transaction model boot handles invoice_number and expired_at
 
         $transaction = Transaction::create([
             'user_id' => $request->user()->id,
@@ -65,7 +63,6 @@ class TransactionController extends Controller
             'status' => 'pending',
         ]);
 
-        // If using Duitku, create payment link
         if ($request->payment_method === 'duitku') {
             $duitkuService = app(\App\Services\DuitkuService::class);
             $result = $duitkuService->createPayment(
@@ -97,7 +94,7 @@ class TransactionController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $transaction = Transaction::with(['package'])
+        $transaction = Transaction::with(['package', 'program'])
             ->where('user_id', $request->user()->id)
             ->findOrFail($id);
 
@@ -121,12 +118,10 @@ class TransactionController extends Controller
             'payment_proof' => ['required', 'image', 'mimes:jpeg,png,jpg,pdf', 'max:5120'],
         ]);
 
-        // Delete old payment proof if exists
         if ($transaction->payment_proof) {
             Storage::disk('public')->delete($transaction->payment_proof);
         }
 
-        // Store new payment proof
         $path = $request->file('payment_proof')->store('payment-proofs', 'public');
 
         $transaction->update([
@@ -175,7 +170,6 @@ class TransactionController extends Controller
         $transaction = Transaction::where('user_id', $request->user()->id)
             ->findOrFail($id);
 
-        // If using Duitku, check payment status from gateway
         if ($transaction->payment_method === 'payment_gateway' && $transaction->status === 'pending') {
             $duitkuService = app(\App\Services\DuitkuService::class);
             $result = $duitkuService->checkPaymentStatus($transaction->invoice_number);
@@ -192,7 +186,6 @@ class TransactionController extends Controller
             }
         }
 
-        // Check if transaction is expired
         if ($transaction->status === 'pending' && $transaction->expired_at < now()) {
             $transaction->update([
                 'status' => 'expired',

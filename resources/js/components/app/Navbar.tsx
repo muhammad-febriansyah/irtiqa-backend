@@ -1,9 +1,8 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, User, LogOut, LayoutDashboard } from 'lucide-react';
 import {
     Navbar as ResizableNavbar,
-    NavbarButton,
     MobileNav,
     MobileNavHeader,
     MobileNavToggle,
@@ -14,13 +13,18 @@ import { ShimmerButton } from '@/components/ui/shimmer-button';
 import { SharedData } from '@/types';
 
 export default function Navbar() {
-    const { siteSettings } = usePage<SharedData>().props;
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { siteSettings, auth } = usePage<SharedData>().props;
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isInfoDropdownOpen, setIsInfoDropdownOpen] = useState(false);
     const [isMulaiDropdownOpen, setIsMulaiDropdownOpen] = useState(false);
+    const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('');
     const { url } = usePage();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    // Format WA Link
+    const waNumber = siteSettings.contact_phone?.replace(/[^0-9]/g, '');
+    const waLink = `https://wa.me/${waNumber}`;
 
     // Detect active section based on scroll position (only on homepage)
     useEffect(() => {
@@ -101,6 +105,39 @@ export default function Navbar() {
         { name: 'FAQ', link: '/faq' },
         { name: 'Artikel', link: '/artikel' },
     ];
+
+    // Get dashboard URL based on user role
+    const getDashboardUrl = () => {
+        if (!auth.user) return '/';
+
+        const roles = auth.user.roles as Array<{ name: string }>;
+        if (roles && roles.length > 0) {
+            const roleNames = roles.map(r => r.name);
+
+            if (roleNames.includes('admin')) {
+                return '/admin/dashboard';
+            }
+            if (roleNames.includes('consultant')) {
+                return '/consultant/dashboard';
+            }
+            if (roleNames.includes('kyai')) {
+                return '/kyai/dashboard';
+            }
+        }
+
+        return '/dashboard';
+    };
+
+    // Get user avatar URL
+    const getAvatarUrl = () => {
+        if (auth.user?.avatar) {
+            return auth.user.avatar.startsWith('http')
+                ? auth.user.avatar
+                : `/storage/${auth.user.avatar}`;
+        }
+        // Default avatar using UI Avatars
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.user?.name || 'User')}&color=7F9CF5&background=EBF4FF`;
+    };
 
     return (
         <ResizableNavbar>
@@ -257,21 +294,78 @@ export default function Navbar() {
             </div>
 
             {/* Desktop Buttons - Only show on large screens */}
-            <div className="hidden lg:flex items-center gap-4">
-                <NavbarButton as={Link} href="/login" variant="secondary">
-                    Masuk
-                </NavbarButton>
-                <Link href="/register?role=consultant">
-                    <ShimmerButton
-                        className="px-6 py-2.5 text-sm font-bold"
-                        background="linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)"
-                        shimmerColor="#ffffff"
-                        shimmerSize="0.1em"
-                        borderRadius="100px"
+            <div className="hidden lg:flex items-center gap-3">
+                {auth.user ? (
+                    /* User Avatar Dropdown */
+                    <div
+                        className="relative"
+                        onMouseEnter={() => setIsUserDropdownOpen(true)}
+                        onMouseLeave={() => setIsUserDropdownOpen(false)}
                     >
-                        Daftar Mitra
-                    </ShimmerButton>
-                </Link>
+                        <button className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                            <img
+                                src={getAvatarUrl()}
+                                alt={auth.user.name}
+                                className="w-10 h-10 rounded-full border-2 border-primary/20"
+                            />
+                            <ChevronDown
+                                size={16}
+                                className={`text-neutral-600 transition-transform duration-200 ${isUserDropdownOpen ? 'rotate-180' : ''}`}
+                            />
+                        </button>
+
+                        {isUserDropdownOpen && (
+                            <div className="absolute top-full right-0 pt-2 z-50">
+                                <div className="w-64 bg-white rounded-xl shadow-lg border border-neutral-100 py-2">
+                                    {/* User Info */}
+                                    <div className="px-4 py-3 border-b border-neutral-100">
+                                        <p className="text-sm font-bold text-neutral-900">{auth.user.name}</p>
+                                        <p className="text-xs text-neutral-500">{auth.user.email}</p>
+                                    </div>
+
+                                    {/* Menu Items */}
+                                    <div className="py-2">
+                                        <a
+                                            href={getDashboardUrl()}
+                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-neutral-600 hover:text-primary hover:bg-primary/5 transition-colors"
+                                        >
+                                            <LayoutDashboard size={16} />
+                                            Dashboard
+                                        </a>
+                                        <button
+                                            onClick={() => router.post('/logout')}
+                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
+                                        >
+                                            <LogOut size={16} />
+                                            Logout
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    /* Login & Register Buttons */
+                    <>
+                        <button
+                            onClick={() => router.visit('/login')}
+                            className="px-6 py-2 rounded-full text-sm font-bold bg-transparent text-neutral-700 border border-neutral-200 hover:bg-neutral-50 hover:-translate-y-0.5 transition duration-300 cursor-pointer"
+                        >
+                            Masuk
+                        </button>
+                        <a href={waLink} target="_blank" rel="noopener noreferrer">
+                            <ShimmerButton
+                                className="px-6 py-2.5 text-sm font-bold"
+                                background="linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)"
+                                shimmerColor="#ffffff"
+                                shimmerSize="0.1em"
+                                borderRadius="100px"
+                            >
+                                Daftar Mitra
+                            </ShimmerButton>
+                        </a>
+                    </>
+                )}
             </div>
 
             {/* Mobile & Tablet Navigation */}
@@ -381,21 +475,56 @@ export default function Navbar() {
                         {/* Divider */}
                         <div className="h-px bg-neutral-200 my-4" />
 
-                        {/* Auth Buttons */}
-                        <div className="space-y-2 pt-2">
-                            <Link
-                                href="/login"
-                                className="block text-center px-4 py-3 rounded-lg text-base font-semibold text-neutral-700 bg-neutral-50 hover:bg-neutral-100 transition-colors"
-                            >
-                                Masuk
-                            </Link>
-                            <Link
-                                href="/register?role=consultant"
-                                className="block text-center px-4 py-3 rounded-lg text-base font-semibold text-white bg-primary hover:bg-primary/90 transition-colors shadow-sm"
-                            >
-                                Daftar Sebagai Mitra
-                            </Link>
-                        </div>
+                        {/* User Section / Auth Buttons */}
+                        {auth.user ? (
+                            <div className="space-y-2 pt-2">
+                                {/* User Info */}
+                                <div className="flex items-center gap-3 px-4 py-3 bg-primary/5 rounded-lg">
+                                    <img
+                                        src={getAvatarUrl()}
+                                        alt={auth.user.name}
+                                        className="w-12 h-12 rounded-full border-2 border-primary/20"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-bold text-neutral-900 truncate">{auth.user.name}</p>
+                                        <p className="text-xs text-neutral-500 truncate">{auth.user.email}</p>
+                                    </div>
+                                </div>
+
+                                {/* User Menu */}
+                                <a
+                                    href={getDashboardUrl()}
+                                    className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg text-base font-semibold text-neutral-700 bg-neutral-50 hover:bg-neutral-100 transition-colors"
+                                >
+                                    <LayoutDashboard size={18} />
+                                    Dashboard
+                                </a>
+                                <button
+                                    onClick={() => router.post('/logout')}
+                                    className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg text-base font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors"
+                                >
+                                    <LogOut size={18} />
+                                    Logout
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="space-y-2 pt-2">
+                                <button
+                                    onClick={() => router.visit('/login')}
+                                    className="block w-full text-center px-4 py-3 rounded-lg text-base font-semibold text-neutral-700 bg-neutral-50 hover:bg-neutral-100 transition-colors cursor-pointer"
+                                >
+                                    Masuk
+                                </button>
+                                <a
+                                    href={waLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block text-center px-4 py-3 rounded-lg text-base font-semibold text-white bg-primary hover:bg-primary/90 transition-colors shadow-sm"
+                                >
+                                    Daftar Sebagai Mitra
+                                </a>
+                            </div>
+                        )}
                     </div>
                 )}
             </MobileNav>

@@ -14,31 +14,25 @@ class ConsultantRoutingService
      */
     public function assignConsultant(ConsultationTicket $ticket, ?FormSubmission $submission = null): ?Consultant
     {
-        // Get submission if not provided
         if (!$submission && $ticket->form_submission_id) {
             $submission = $ticket->formSubmission;
         }
 
-        // Build candidate list
         $candidates = $this->buildCandidateList($ticket, $submission);
 
         if ($candidates->isEmpty()) {
             return null;
         }
 
-        // Calculate scores for each candidate
         $scoredCandidants = $candidates->map(function ($consultant) use ($ticket, $submission) {
             $score = $this->calculateScore($consultant, $ticket, $submission);
             $consultant->routing_score = $score;
             return $consultant;
         });
 
-        // Sort by score and get top consultant
         $topConsultant = $scoredCandidants->sortByDesc('routing_score')->first();
 
-        // Check availability
         if (!$this->checkAvailability($topConsultant)) {
-            // Get next available consultant
             foreach ($scoredCandidants->sortByDesc('routing_score') as $consultant) {
                 if ($this->checkAvailability($consultant)) {
                     $topConsultant = $consultant;
@@ -47,10 +41,8 @@ class ConsultantRoutingService
             }
         }
 
-        // Record routing metadata
         $metadata = $this->buildRoutingMetadata($topConsultant, $scoredCandidants);
 
-        // Update ticket
         $ticket->update([
             'consultant_id' => $topConsultant->id,
             'assigned_by_id' => null,
@@ -60,7 +52,6 @@ class ConsultantRoutingService
             'assigned_at' => now(),
         ]);
 
-        // Create primary consultant team entry
         $ticket->team()->create([
             'consultant_id' => $topConsultant->id,
             'role' => 'primary',
@@ -78,20 +69,16 @@ class ConsultantRoutingService
         $query = Consultant::where('is_verified', true)
             ->where('is_active', true);
 
-        // Filter by specialization (category)
         if ($ticket->category_id) {
             $query->where('specialist_category', $ticket->category_id);
         }
 
-        // For critical cases, only experts
         if ($submission && $submission->isCritical()) {
             $query->where('level', 'expert');
         }
 
-        // Regional preference (bonus, not required)
         $userProvince = $ticket->user->profile?->province;
         if ($userProvince) {
-            // This doesn't filter out, just marks for bonus points later
             $query->addSelect(['*', \DB::raw("IF(province = '$userProvince', 1, 0) as is_same_region")]);
         }
 
@@ -105,7 +92,6 @@ class ConsultantRoutingService
     {
         $score = 0;
 
-        // 1. Experience Level (0-30 points)
         $score += match($consultant->level) {
             'expert' => 30,
             'senior' => 20,
@@ -113,28 +99,23 @@ class ConsultantRoutingService
             default => 0,
         };
 
-        // 2. Workload (0-25 points) - Less active cases = Higher score
         $activeTickets = $consultant->consultationTickets()
             ->whereIn('status', ['waiting', 'in_progress'])
             ->count();
         $workloadScore = max(0, 25 - ($activeTickets * 2));
         $score += $workloadScore;
 
-        // 3. Average Rating (0-25 points)
         $ratingScore = ($consultant->average_rating ?? 0) * 5;
         $score += $ratingScore;
 
-        // 4. Response Time (0-20 points) - Faster = Higher score
         $avgResponseTime = $this->calculateAverageResponseTime($consultant);
         $responseScore = max(0, 20 - ($avgResponseTime / 2));
         $score += $responseScore;
 
-        // 5. Regional Bonus (0-10 points)
         if (isset($consultant->is_same_region) && $consultant->is_same_region) {
             $score += 10;
         }
 
-        // 6. Priority Bonus for critical cases
         if ($submission && $submission->isCritical() && $consultant->level === 'expert') {
             $score += 15; // Extra bonus for expert on critical case
         }
@@ -147,7 +128,6 @@ class ConsultantRoutingService
      */
     private function calculateAverageResponseTime(Consultant $consultant): float
     {
-        // Get recent tickets assigned to this consultant
         $recentTickets = ConsultationTicket::where('consultant_id', $consultant->id)
             ->whereNotNull('assigned_at')
             ->where('created_at', '>=', now()->subDays(30))
@@ -161,7 +141,6 @@ class ConsultantRoutingService
         $count = 0;
 
         foreach ($recentTickets as $ticket) {
-            // Get first message from consultant
             $firstMessage = $ticket->messages()
                 ->where('sender_id', $consultant->user_id)
                 ->orderBy('created_at')
@@ -182,7 +161,6 @@ class ConsultantRoutingService
      */
     private function checkAvailability(Consultant $consultant): bool
     {
-        // Check if consultant has too many active tickets
         $maxActiveTickets = match($consultant->level) {
             'expert' => 15,
             'senior' => 10,
@@ -198,7 +176,6 @@ class ConsultantRoutingService
             return false;
         }
 
-        // Check schedule (basic - can be enhanced)
         $currentDay = now()->dayOfWeek; // 0 = Sunday, 6 = Saturday
         $currentTime = now()->format('H:i');
 
@@ -209,7 +186,6 @@ class ConsultantRoutingService
             ->where('end_time', '>=', $currentTime)
             ->exists();
 
-        // If no schedule found, assume available (24/7)
         return $schedule || !$consultant->schedules()->exists();
     }
 
@@ -263,7 +239,6 @@ class ConsultantRoutingService
             'assigned_at' => now(),
         ]);
 
-        // Create or update primary consultant
         $ticket->team()->updateOrCreate(
             ['consultant_id' => $consultant->id],
             [

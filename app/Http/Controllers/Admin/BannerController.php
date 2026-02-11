@@ -62,7 +62,6 @@ class BannerController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            // Delete old image
             if ($banner->image) {
                 Storage::disk('public')->delete($banner->image);
             }

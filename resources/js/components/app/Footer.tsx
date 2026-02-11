@@ -15,6 +15,10 @@ import { SharedData } from '@/types';
 export default function Footer() {
     const { siteSettings } = usePage<SharedData>().props;
 
+    // Format WA Link
+    const waNumber = siteSettings.contact_phone?.replace(/[^0-9]/g, '');
+    const waLink = `https://wa.me/${waNumber}`;
+
     const currentYear = new Date().getFullYear();
 
     return (
@@ -119,13 +123,15 @@ export default function Footer() {
                                 <p className="text-xs text-neutral-400 mb-4 leading-relaxed">
                                     Jadilah bagian dari mitra konsultan profesional kami.
                                 </p>
-                                <Link
-                                    href="/register?role=consultant"
+                                <a
+                                    href={waLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="inline-flex items-center justify-center w-full py-2.5 px-4 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 group/btn"
                                 >
                                     Daftar Sekarang
                                     <ArrowRight size={14} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                                </Link>
+                                </a>
                             </div>
                         </div>
                     </div>

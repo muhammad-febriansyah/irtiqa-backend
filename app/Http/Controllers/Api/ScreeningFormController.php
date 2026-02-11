@@ -17,12 +17,10 @@ class ScreeningFormController extends Controller
         $query = FormTemplate::with(['fields.options'])
             ->active();
 
-        // Filter by type
         if ($request->has('type')) {
             $query->byType($request->type);
         }
 
-        // Filter by category
         if ($request->has('category_id')) {
             $query->byCategory($request->category_id);
         }
@@ -46,7 +44,6 @@ class ScreeningFormController extends Controller
             ->first();
 
         if (!$form) {
-            // Fallback to first active form in category
             $form = FormTemplate::with(['fields.options'])
                 ->active()
                 ->where('category_id', $categoryId)

@@ -26,6 +26,7 @@ class UserProfileResource extends JsonResource
             'postal_code' => $this->postal_code,
             'bio' => $this->bio,
             'disclaimer_accepted_at' => $this->disclaimer_accepted_at?->toISOString(),
+            'onboarding_completed' => (bool) $this->onboarding_completed,
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

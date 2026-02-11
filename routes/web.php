@@ -8,6 +8,19 @@ use App\Models\Banner;
 use App\Models\Slider;
 use App\Models\SystemSetting;
 
+// Debug route to check auth status
+Route::get('/debug-auth', function () {
+    return response()->json([
+        'authenticated' => auth()->check(),
+        'user' => auth()->user() ? [
+            'id' => auth()->user()->id,
+            'email' => auth()->user()->email,
+            'name' => auth()->user()->name,
+        ] : null,
+        'session_id' => session()->getId(),
+    ]);
+});
+
 Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/tentang-kami', [\App\Http\Controllers\AboutController::class, 'index'])->name('about');
@@ -32,3 +45,4 @@ Route::get('/syarat-ketentuan', [\App\Http\Controllers\LegalController::class, '
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/admin.php';
+require __DIR__ . '/consultant.php';

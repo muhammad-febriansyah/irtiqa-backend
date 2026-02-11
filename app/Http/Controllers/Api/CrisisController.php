@@ -33,7 +33,6 @@ class CrisisController extends Controller
 
         $user = $request->user();
 
-        // Create crisis alert
         $alert = CrisisAlert::create([
             'user_id' => $user->id,
             'ticket_id' => $request->ticket_id,
@@ -43,11 +42,9 @@ class CrisisController extends Controller
             'context' => $request->context,
         ]);
 
-        // Auto-escalate to admin if enabled
         $autoEscalate = SystemSetting::where('key', 'crisis.auto_escalate')->value('value') === 'true';
 
         if ($autoEscalate) {
-            // Find first available admin for direct acknowledgment
             $admin = User::whereHas('roles', function ($query) {
                 $query->where('name', 'admin');
             })->first();
@@ -57,7 +54,6 @@ class CrisisController extends Controller
             }
         }
 
-        // Notify all admins
         $admins = User::whereHas('roles', function ($query) {
             $query->where('name', 'admin');
         })->get();
@@ -66,7 +62,6 @@ class CrisisController extends Controller
             $admin->notify(new CrisisAlertNotification($alert));
         }
 
-        // Get hotline info
         $hotline = $this->getHotlineInfo();
 
         return response()->json([
@@ -136,10 +131,8 @@ class CrisisController extends Controller
             return null;
         }
 
-        // Determine severity based on number of keywords
         $severity = count($detectedKeywords) >= 3 ? 'critical' : (count($detectedKeywords) >= 2 ? 'high' : 'medium');
 
-        // Create crisis alert
         $alert = CrisisAlert::create([
             'user_id' => $userId,
             'ticket_id' => $ticketId,
@@ -151,7 +144,6 @@ class CrisisController extends Controller
             'context' => substr($text, 0, 500), // Store first 500 chars
         ]);
 
-        // Auto-escalate if critical
         if ($severity === 'critical') {
             $admin = User::whereHas('roles', function ($query) {
                 $query->where('name', 'admin');
@@ -162,7 +154,6 @@ class CrisisController extends Controller
             }
         }
 
-        // Notify all admins for high/critical alerts
         if ($severity === 'high' || $severity === 'critical') {
             $admins = User::whereHas('roles', function ($query) {
                 $query->where('name', 'admin');
@@ -214,17 +205,14 @@ class CrisisController extends Controller
         $query = CrisisAlert::with(['user', 'ticket', 'assignedToAdmin'])
             ->orderBy('created_at', 'desc');
 
-        // Filter by status
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filter by severity
         if ($request->has('severity')) {
             $query->where('severity', $request->severity);
         }
 
-        // Pagination
         $perPage = $request->get('per_page', 20);
         $alerts = $query->paginate($perPage);
 

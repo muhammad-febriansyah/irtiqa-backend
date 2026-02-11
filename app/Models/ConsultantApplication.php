@@ -69,7 +69,6 @@ class ConsultantApplication extends Model
             'admin_notes' => $notes,
         ]);
 
-        // Create consultant record
         Consultant::create([
             'user_id' => $this->user_id,
             'specialization' => $this->specializations,
@@ -79,7 +78,6 @@ class ConsultantApplication extends Model
             'is_active' => true,
         ]);
 
-        // Assign consultant role
         $this->user->assignRole('consultant');
     }
 

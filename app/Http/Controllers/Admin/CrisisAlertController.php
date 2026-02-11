@@ -17,17 +17,14 @@ class CrisisAlertController extends Controller
         $query = CrisisAlert::with(['user', 'ticket', 'assignedToAdmin'])
             ->orderBy('created_at', 'desc');
 
-        // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filter by severity
         if ($request->filled('severity')) {
             $query->where('severity', $request->severity);
         }
 
-        // Search by user name
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('user', function ($q) use ($search) {
@@ -37,7 +34,6 @@ class CrisisAlertController extends Controller
 
         $alerts = $query->paginate($request->get('per_page', 20));
 
-        // Transform data for frontend
         $alerts->getCollection()->transform(function ($alert) {
             return [
                 'id' => $alert->id,

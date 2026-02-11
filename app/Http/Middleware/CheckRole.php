@@ -17,17 +17,11 @@ class CheckRole
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         if (!$request->user()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthenticated',
-            ], 401);
+            return redirect()->route('login');
         }
 
         if (!$request->user()->hasAnyRole($roles)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. You do not have the required role.',
-            ], 403);
+            abort(403, 'Unauthorized. You do not have the required role.');
         }
 
         return $next($request);

@@ -14,27 +14,22 @@ class PractitionerController extends Controller
     {
         $query = Practitioner::with('verifier')->orderByDesc('created_at');
 
-        // Filter by verification status
         if ($request->filled('verification_status')) {
             $query->where('verification_status', $request->verification_status);
         }
 
-        // Filter by province
         if ($request->filled('province')) {
             $query->where('province', $request->province);
         }
 
-        // Filter by city
         if ($request->filled('city')) {
             $query->where('city', $request->city);
         }
 
-        // Filter by active status
         if ($request->filled('is_active')) {
             $query->where('is_active', $request->boolean('is_active'));
         }
 
-        // Search
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%")
@@ -65,7 +60,6 @@ class PractitionerController extends Controller
             ];
         });
 
-        // Get unique provinces and cities
         $provinces = Practitioner::distinct()->pluck('province')->filter()->toArray();
         $cities = Practitioner::distinct()->pluck('city')->filter()->toArray();
 

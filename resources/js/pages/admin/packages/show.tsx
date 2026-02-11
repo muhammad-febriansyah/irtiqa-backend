@@ -12,7 +12,6 @@ import {
     Tag,
     Trash2,
 } from 'lucide-react';
-import { toast } from 'sonner';
 
 import AppLayout from '@/layouts/app-layout';
 import { Badge } from '@/components/ui/badge';

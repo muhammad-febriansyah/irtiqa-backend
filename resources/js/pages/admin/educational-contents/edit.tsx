@@ -1,7 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { ArrowLeft, FileText, ImagePlus, Info, Megaphone, Plus, Settings, Tag, X } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { toast } from 'sonner';
 
 import { RichTextEditor } from '@/components/rich-text-editor';
 import { Button } from '@/components/ui/button';

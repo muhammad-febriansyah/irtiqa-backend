@@ -4,7 +4,6 @@ namespace App\Services;
 
 class RiskAssessmentService
 {
-    // Risk levels
     const RISK_LOW = 'low';
     const RISK_MEDIUM = 'medium';
     const RISK_HIGH = 'high';
@@ -23,7 +22,6 @@ class RiskAssessmentService
         $riskFlags = [];
         $scores = [];
 
-        // Check for critical indicators
         $suicideScore = $this->checkSuicideRisk($content);
         if ($suicideScore > 0) {
             $riskFlags[] = 'suicide_ideation';
@@ -54,10 +52,8 @@ class RiskAssessmentService
             $scores[] = $delusionScore * 7;
         }
 
-        // Calculate overall risk
         $totalScore = empty($scores) ? 0 : array_sum($scores) / count($scores);
 
-        // Determine risk level
         if ($totalScore >= 8 || $suicideScore > 0.7) {
             $riskLevel = self::RISK_CRITICAL;
             $requiresEscalation = true;

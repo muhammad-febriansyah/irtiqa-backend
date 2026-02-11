@@ -15,33 +15,27 @@ class TicketController extends Controller
         $query = ConsultationTicket::with(['user', 'consultant.user'])
             ->orderByDesc('created_at');
 
-        // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filter by risk level
         if ($request->filled('risk_level')) {
             $query->where('risk_level', $request->risk_level);
         }
 
-        // Filter by category
         if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
 
-        // Filter by urgency
         if ($request->filled('urgency')) {
             $query->where('urgency', $request->urgency);
         }
 
-        // Filter waiting assignment
         if ($request->boolean('waiting_assignment')) {
             $query->where('status', 'waiting')
                 ->whereNull('consultant_id');
         }
 
-        // Search
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('ticket_number', 'like', "%{$request->search}%")
@@ -70,7 +64,6 @@ class TicketController extends Controller
             ];
         });
 
-        // Get unique categories for filter
         $categories = ConsultationTicket::distinct()->pluck('category')->toArray();
 
         return Inertia::render('admin/tickets/index', [

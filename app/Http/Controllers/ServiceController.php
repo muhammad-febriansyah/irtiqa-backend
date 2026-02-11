@@ -12,13 +12,11 @@ class ServiceController extends Controller
     {
         $logo = SystemSetting::get('logo');
 
-        // Get active packages, ordered by sort_order
         $packages = Package::where('is_active', true)
             ->where('is_public', true)
             ->orderBy('sort_order')
             ->get()
             ->map(function ($package) {
-                // Ensure features is always an array
                 $features = $package->features;
                 if (is_string($features)) {
                     $features = json_decode($features, true) ?? [];

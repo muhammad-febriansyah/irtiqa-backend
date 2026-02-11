@@ -146,7 +146,7 @@ export default function ConsultantDetail({ consultant }: Props) {
                             <div className="space-y-6">
                                 <h4 className="text-xl font-bold text-neutral-900">Jadwal Praktik</h4>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {consultant.working_hours && consultant.working_hours.length > 0 ? (
+                                    {Array.isArray(consultant.working_hours) && consultant.working_hours.length > 0 ? (
                                         consultant.working_hours.map((hour, idx) => (
                                             <div key={idx} className="flex items-center gap-3 p-4 bg-neutral-50 rounded-2xl border border-neutral-100">
                                                 <Clock size={16} className="text-primary" />

@@ -16,14 +16,12 @@ class UserController extends Controller
     {
         $query = User::with(['roles'])->orderByDesc('created_at');
 
-        // Filter by role
         if ($request->filled('role')) {
             $query->whereHas('roles', function ($q) use ($request) {
                 $q->where('name', $request->role);
             });
         }
 
-        // Filter by verification status
         if ($request->filled('verified')) {
             if ($request->verified === 'yes') {
                 $query->whereNotNull('email_verified_at');
@@ -32,7 +30,6 @@ class UserController extends Controller
             }
         }
 
-        // Search
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%")
@@ -88,7 +85,6 @@ class UserController extends Controller
             'email_verified_at' => $request->boolean('email_verified') ? now() : null,
         ];
 
-        // Handle avatar upload
         if ($request->hasFile('avatar')) {
             $avatarPath = $request->file('avatar')->store('avatars', 'public');
             $data['avatar'] = $avatarPath;
@@ -125,9 +121,7 @@ class UserController extends Controller
             $data['password'] = Hash::make($validated['password']);
         }
 
-        // Handle avatar upload
         if ($request->hasFile('avatar')) {
-            // Delete old avatar if exists
             if ($user->avatar) {
                 \Storage::disk('public')->delete($user->avatar);
             }
@@ -137,7 +131,6 @@ class UserController extends Controller
 
         $user->update($data);
 
-        // Sync roles
         if (isset($validated['roles'])) {
             $user->roles()->sync($validated['roles']);
         }
@@ -147,7 +140,6 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        // Prevent deleting self
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Tidak dapat menghapus akun sendiri');
         }

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import HomeLayout from '@/layouts/HomeLayout';
 import PageHeader from '@/components/app/PageHeader';
 import Pagination from '@/components/app/Pagination';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { SharedData } from '@/types';
 import {
     Star,
     Award,
@@ -61,6 +62,10 @@ export default function Consultants({ consultants, filters, logo }: Props) {
         { label: 'Layanan' },
         { label: 'Daftar Konsultan' }
     ];
+
+    const { siteSettings } = usePage<SharedData>().props;
+    const waNumber = siteSettings.contact_phone?.replace(/[^0-9]/g, '');
+    const waLink = `https://wa.me/${waNumber}`;
 
     useEffect(() => {
         if (debouncedSearch !== (filters.search || '')) {
@@ -132,13 +137,15 @@ export default function Consultants({ consultants, filters, logo }: Props) {
                 subtitle="Dibimbing oleh tenaga ahli psiko-spiritual yang kompeten dan tersertifikasi di bidangnya."
                 breadcrumbs={breadcrumbs}
                 action={
-                    <Link
-                        href="/register?role=consultant"
+                    <a
+                        href={waLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 bg-white text-primary hover:bg-white/90 px-6 py-3 rounded-xl font-bold transition-all shadow-lg"
                     >
                         Mulai Bergabung
                         <ArrowRight size={18} />
-                    </Link>
+                    </a>
                 }
             />
 
@@ -305,12 +312,14 @@ export default function Consultants({ consultants, filters, logo }: Props) {
                         <div className="relative z-10 text-center flex flex-col items-center">
                             <h3 className="text-3xl font-bold text-white mb-6">Ingin bergabung sebagai mitra kami?</h3>
                             <p className="text-neutral-400 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">Kami membuka kesempatan kolaborasi bagi para tenaga profesional psikologi dan spiritual untuk berkontribusi dalam ekosistem IRTIQA.</p>
-                            <Link
-                                href="/register?role=consultant"
+                            <a
+                                href={waLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="bg-white text-neutral-900 hover:bg-primary hover:text-white px-12 py-5 rounded-2xl font-bold transition-all duration-300 inline-block shadow-xl hover:shadow-primary/20"
                             >
                                 Daftar Sebagai Mitra
-                            </Link>
+                            </a>
                         </div>
                         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
                         <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />

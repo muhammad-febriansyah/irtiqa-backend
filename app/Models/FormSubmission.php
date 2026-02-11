@@ -53,14 +53,11 @@ class FormSubmission extends Model
         $totalScore = 0;
 
         foreach ($this->answers as $answer) {
-            // Get field risk weight
             $field = $answer->field;
             $fieldWeight = $field->risk_weight ?? 0;
 
-            // Get answer risk score (from selected option)
             $answerScore = $answer->risk_score ?? 0;
 
-            // Total = field weight + answer score
             $totalScore += ($fieldWeight + $answerScore);
         }
 

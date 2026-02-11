@@ -50,14 +50,12 @@ class FormSubmissionController extends Controller
             $user = $request->user();
             $template = FormTemplate::findOrFail($request->form_template_id);
 
-            // Create form submission
             $submission = FormSubmission::create([
                 'form_template_id' => $template->id,
                 'user_id' => $user->id,
                 'submitted_at' => now(),
             ]);
 
-            // Store answers
             foreach ($request->answers as $answerData) {
                 $answer = $submission->answers()->create([
                     'form_field_id' => $answerData['form_field_id'],
@@ -65,15 +63,12 @@ class FormSubmissionController extends Controller
                     'explanation' => $answerData['explanation'] ?? null,
                 ]);
 
-                // Calculate risk score for this answer
                 $answer->calculateRiskScore();
             }
 
-            // Calculate total risk score
             $submission->load('answers.field');
             $submission->calculateRiskScore();
 
-            // Create consultation ticket
             $ticket = ConsultationTicket::create([
                 'user_id' => $user->id,
                 'category_id' => $request->category_id,
@@ -83,7 +78,6 @@ class FormSubmissionController extends Controller
                 'status' => 'waiting',
             ]);
 
-            // Auto-assign consultant using smart routing
             $consultant = $this->routingService->assignConsultant($ticket, $submission);
 
             if (!$consultant) {
@@ -94,12 +88,10 @@ class FormSubmissionController extends Controller
                 ], 503);
             }
 
-            // Update submission with ticket reference
             $submission->update(['consultation_ticket_id' => $ticket->id]);
 
             DB::commit();
 
-            // Load relationships for response
             $submission->load(['template', 'user', 'consultationTicket', 'answers.field']);
 
             return response()->json([
@@ -171,7 +163,6 @@ class FormSubmissionController extends Controller
     {
         $ticket = ConsultationTicket::findOrFail($ticketId);
 
-        // Check if user is consultant for this ticket
         $user = $request->user();
         if (!$ticket->isConsultantOrAdmin($user->id)) {
             return response()->json([
@@ -193,7 +184,6 @@ class FormSubmissionController extends Controller
      */
     public function riskStatistics(Request $request)
     {
-        // Check if user is admin
         if (!$request->user()->hasRole('admin')) {
             return response()->json([
                 'success' => false,

@@ -1,4 +1,5 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, usePage } from '@inertiajs/react';
+import { SharedData } from '@/types';
 import { AlertCircle, Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useState } from 'react';
 
@@ -21,6 +22,10 @@ export default function Login({
 }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false);
     const [recaptchaToken, setRecaptchaToken] = useState('');
+
+    const { siteSettings } = usePage<SharedData>().props;
+    const waNumber = siteSettings.contact_phone?.replace(/[^0-9]/g, '');
+    const waLink = `https://wa.me/${waNumber}`;
 
     return (
         <AuthLayout
@@ -133,6 +138,33 @@ export default function Login({
                             {processing && <Spinner className="mr-2" />}
                             {processing ? 'Memproses...' : 'Masuk ke Akun'}
                         </Button>
+
+                        {/* Register Link */}
+                        <div className="text-center text-sm">
+                            <span className="text-muted-foreground">
+                                Belum punya akun?{' '}
+                            </span>
+                            <a
+                                href={waLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-medium text-primary hover:underline"
+                                tabIndex={5}
+                            >
+                                Daftar Sekarang
+                            </a>
+                        </div>
+
+                        {/* Forgot Password Link */}
+                        <div className="text-center text-sm">
+                            <a
+                                href="/forgot-password"
+                                className="text-muted-foreground hover:text-primary hover:underline"
+                                tabIndex={6}
+                            >
+                                Lupa kata sandi?
+                            </a>
+                        </div>
                     </>
                 )}
             </Form>

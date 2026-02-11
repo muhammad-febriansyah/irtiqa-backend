@@ -32,6 +32,21 @@ export function AppSidebarHeader({
             .slice(0, 2);
     };
 
+    // Get user role display name
+    const getRoleDisplayName = () => {
+        if (!user.roles || user.roles.length === 0) return 'User';
+
+        const role = user.roles[0].name;
+        const roleMap: Record<string, string> = {
+            admin: 'Administrator',
+            consultant: 'Konsultan',
+            kyai: 'Kyai',
+            client: 'Klien',
+        };
+
+        return roleMap[role] || role.charAt(0).toUpperCase() + role.slice(1);
+    };
+
     return (
         <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b border-border/50 bg-background/95 backdrop-blur-sm px-6 transition-all ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4 shadow-sm">
             <div className="flex flex-1 items-center justify-between gap-4">
@@ -65,7 +80,7 @@ export function AppSidebarHeader({
                                     {user.name}
                                 </span>
                                 <span className="text-xs text-muted-foreground">
-                                    Administrator
+                                    {getRoleDisplayName()}
                                 </span>
                             </div>
                             <ChevronDown className="h-4 w-4 text-muted-foreground hidden md:block" />

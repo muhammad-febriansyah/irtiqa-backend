@@ -23,7 +23,10 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(\Laravel\Fortify\Contracts\LoginResponse::class, \App\Http\Responses\LoginResponse::class);
+        $this->app->singleton(\Laravel\Fortify\Contracts\RegisterResponse::class, \App\Http\Responses\RegisterResponse::class);
+        $this->app->singleton(\Laravel\Fortify\Contracts\PasswordUpdateResponse::class, \App\Http\Responses\PasswordUpdateResponse::class);
+        $this->app->singleton(\Laravel\Fortify\Contracts\TwoFactorLoginResponse::class, \App\Http\Responses\TwoFactorLoginResponse::class);
     }
 
     /**
@@ -106,7 +109,6 @@ class FortifyServiceProvider extends ServiceProvider
             $user = User::where('email', $request->email)->first();
 
             if ($user && Hash::check($request->password, $user->password)) {
-                // Check if email is verified
                 if (is_null($user->email_verified_at)) {
                     throw ValidationException::withMessages([
                         'email' => 'Email Anda belum diverifikasi. Silakan verifikasi email Anda terlebih dahulu atau hubungi administrator.',

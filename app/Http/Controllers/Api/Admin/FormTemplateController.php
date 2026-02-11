@@ -17,27 +17,22 @@ class FormTemplateController extends Controller
     {
         $query = FormTemplate::with(['category', 'creator']);
 
-        // Filter by type
         if ($request->has('type')) {
             $query->where('type', $request->type);
         }
 
-        // Filter by category
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
         }
 
-        // Filter by active status
         if ($request->has('is_active')) {
             $query->where('is_active', $request->boolean('is_active'));
         }
 
-        // Search by name
         if ($request->has('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Sort
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
@@ -150,7 +145,6 @@ class FormTemplateController extends Controller
     {
         $template = FormTemplate::findOrFail($id);
 
-        // Check if template has submissions
         if ($template->submissions()->exists()) {
             return response()->json([
                 'success' => false,

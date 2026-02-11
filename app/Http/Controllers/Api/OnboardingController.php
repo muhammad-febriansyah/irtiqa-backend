@@ -30,7 +30,6 @@ class OnboardingController extends Controller
 
         $user = $request->user();
 
-        // Check if already accepted
         $existing = DisclaimerAcceptance::where('user_id', $user->id)
             ->where('disclaimer_type', $request->disclaimer_type)
             ->first();
@@ -43,7 +42,6 @@ class OnboardingController extends Controller
             ]);
         }
 
-        // Create new acceptance record
         $acceptance = DisclaimerAcceptance::create([
             'user_id' => $user->id,
             'disclaimer_type' => $request->disclaimer_type,
@@ -106,7 +104,6 @@ class OnboardingController extends Controller
         $birthDate = \Carbon\Carbon::parse($request->birth_date);
         $age = $birthDate->age;
 
-        // Get minimum age from settings
         $minAge = \App\Models\SystemSetting::where('key', 'policy.min_age')->value('value') ?? 17;
 
         if ($age < $minAge) {
@@ -121,7 +118,6 @@ class OnboardingController extends Controller
             ], 403);
         }
 
-        // Update user profile with birth date
         $profile = UserProfile::updateOrCreate(
             ['user_id' => $user->id],
             ['birth_date' => $request->birth_date]
@@ -162,7 +158,6 @@ class OnboardingController extends Controller
 
         $user = $request->user();
 
-        // Check if onboarding disclaimer is accepted
         $hasAcceptedDisclaimer = DisclaimerAcceptance::hasAccepted($user->id, 'onboarding');
 
         if (!$hasAcceptedDisclaimer) {
@@ -172,7 +167,6 @@ class OnboardingController extends Controller
             ], 400);
         }
 
-        // Update user profile
         $profile = UserProfile::updateOrCreate(
             ['user_id' => $user->id],
             [

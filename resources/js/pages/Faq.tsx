@@ -81,39 +81,43 @@ export default function Faq({ faqs, logo }: Props) {
                                     </h2>
                                     <div className="space-y-4">
                                         {items.map((faq) => (
-                                            <div
-                                                key={faq.id}
-                                                className={`border rounded-2xl transition-all duration-300 ${openId === faq.id
-                                                        ? 'border-primary bg-primary/[0.02] shadow-md'
-                                                        : 'border-neutral-100 bg-white hover:border-neutral-200'
-                                                    }`}
-                                            >
-                                                <button
-                                                    onClick={() => toggleFaq(faq.id)}
-                                                    className="w-full text-left px-6 py-5 flex items-center justify-between gap-4"
+                                            <div key={faq.id} className="relative group">
+                                                {/* Background Blur Effect */}
+                                                <div className={`absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-primary/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${openId === faq.id ? 'opacity-100' : ''}`} />
+
+                                                <div
+                                                    className={`relative border rounded-2xl transition-all duration-500 bg-white ${openId === faq.id
+                                                        ? 'border-primary/50 shadow-xl shadow-primary/5 translate-y-[-2px]'
+                                                        : 'border-neutral-100 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:translate-y-[-1px]'
+                                                        }`}
                                                 >
-                                                    <span className={`font-bold transition-colors ${openId === faq.id ? 'text-primary' : 'text-[#374151]'}`}>
-                                                        {faq.question}
-                                                    </span>
-                                                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all ${openId === faq.id ? 'bg-primary text-white' : 'bg-neutral-50 text-neutral-400'}`}>
-                                                        {openId === faq.id ? <Minus size={16} /> : <Plus size={16} />}
-                                                    </div>
-                                                </button>
-                                                <AnimatePresence>
-                                                    {openId === faq.id && (
-                                                        <motion.div
-                                                            initial={{ height: 0, opacity: 0 }}
-                                                            animate={{ height: 'auto', opacity: 1 }}
-                                                            exit={{ height: 0, opacity: 0 }}
-                                                            transition={{ duration: 0.3, ease: 'easeInOut' }}
-                                                            className="overflow-hidden"
-                                                        >
-                                                            <div className="px-6 pb-6 text-[#6B7280] leading-relaxed border-t border-primary/5 pt-4">
-                                                                {faq.answer}
-                                                            </div>
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
+                                                    <button
+                                                        onClick={() => toggleFaq(faq.id)}
+                                                        className="w-full text-left px-6 py-5 flex items-center justify-between gap-4"
+                                                    >
+                                                        <span className={`font-bold transition-colors duration-300 ${openId === faq.id ? 'text-primary' : 'text-[#374151]'}`}>
+                                                            {faq.question}
+                                                        </span>
+                                                        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${openId === faq.id ? 'bg-primary text-white rotate-0' : 'bg-neutral-50 text-neutral-400 rotate-0'}`}>
+                                                            {openId === faq.id ? <Minus size={16} /> : <Plus size={16} />}
+                                                        </div>
+                                                    </button>
+                                                    <AnimatePresence>
+                                                        {openId === faq.id && (
+                                                            <motion.div
+                                                                initial={{ height: 0, opacity: 0 }}
+                                                                animate={{ height: 'auto', opacity: 1 }}
+                                                                exit={{ height: 0, opacity: 0 }}
+                                                                transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
+                                                                className="overflow-hidden"
+                                                            >
+                                                                <div className="px-6 pb-6 text-[#6B7280] leading-relaxed border-t border-neutral-50 pt-4">
+                                                                    {faq.answer}
+                                                                </div>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
@@ -134,23 +138,32 @@ export default function Faq({ faqs, logo }: Props) {
                     )}
 
                     {/* Contact CTA */}
-                    <div className="mt-20 p-8 sm:p-12 bg-neutral-900 rounded-[2.5rem] relative overflow-hidden text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-8">
-                        <div className="relative z-10">
-                            <h3 className="text-2xl font-bold text-white mb-2">Masih punya pertanyaan lain?</h3>
-                            <p className="text-neutral-400">Tim kami siap membantu Anda memberikan penjelasan lebih lanjut.</p>
-                        </div>
-                        <a
-                            href="https://wa.me/6281234567890"
-                            target="_blank"
-                            className="relative z-10 inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-300 shadow-lg shadow-primary/20"
-                        >
-                            <MessageCircle size={20} />
-                            Hubungi Admin
-                        </a>
+                    <div className="mt-32 relative group">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-primary/10 rounded-[3rem] blur-2xl opacity-70 transition-opacity duration-500" />
 
-                        {/* Decorative elements */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-                        <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
+                        <div className="relative p-10 sm:p-16 bg-white border border-neutral-100 rounded-[3rem] overflow-hidden shadow-2xl shadow-primary/5 flex flex-col sm:flex-row items-center justify-between gap-10">
+                            <div className="relative z-10 text-center sm:text-left space-y-4">
+                                <h3 className="text-3xl font-bold text-[#111827] tracking-tight">
+                                    Masih punya pertanyaan lain?
+                                </h3>
+                                <p className="text-[#6B7280] text-lg max-w-md leading-relaxed">
+                                    Tim kami siap membantu Anda memberikan penjelasan lebih lanjut melalui layanan chat WhatsApp.
+                                </p>
+                            </div>
+
+                            <a
+                                href="https://wa.me/6281234567890"
+                                target="_blank"
+                                className="relative z-10 inline-flex items-center gap-3 bg-primary hover:bg-primary/90 text-white px-10 py-5 rounded-2xl font-bold transition-all duration-300 shadow-xl shadow-primary/20 active:scale-95 whitespace-nowrap"
+                            >
+                                <MessageCircle size={24} />
+                                Hubungi Admin
+                            </a>
+
+                            {/* Decorative elements */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
+                        </div>
                     </div>
                 </div>
             </section>

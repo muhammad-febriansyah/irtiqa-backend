@@ -1,16 +1,16 @@
-import React from 'react';
+import { Head, usePage } from '@inertiajs/react';
 import HomeLayout from '@/layouts/HomeLayout';
 import PageHeader from '@/components/app/PageHeader';
-import { Head } from '@inertiajs/react';
+import { SharedData } from '@/types';
 import {
-    UserPlus,
-    ClipboardCheck,
-    MessageSquare,
+    MessageCircle,
+    Calendar,
+    Users,
     Zap,
-    CheckCircle2,
     ArrowRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Timeline } from '@/components/ui/timeline';
 
 interface Props {
     logo: string | null;
@@ -22,37 +22,115 @@ export default function HowItWorks({ logo }: Props) {
         { label: 'Cara Kerja' }
     ];
 
-    const steps = [
+    const { siteSettings } = usePage<SharedData>().props;
+    const waNumber = siteSettings.contact_phone?.replace(/[^0-9]/g, '');
+    const waLink = `https://wa.me/${waNumber}`;
+
+    const timelineData = [
         {
-            title: 'Pendaftaran Akun',
-            description: 'Buat akun IRTIQA Anda dengan mudah menggunakan alamat email. Proses cepat dan privasi Anda terjamin.',
-            icon: <UserPlus size={32} />,
-            color: 'bg-blue-600'
+            title: "Pilih Konsultan",
+            content: (
+                <div>
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center text-primary">
+                            <Users size={28} />
+                        </div>
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/30">
+                            01
+                        </div>
+                    </div>
+                    <p className="text-neutral-700 dark:text-neutral-300 text-base md:text-lg leading-relaxed mb-8">
+                        Pilih pakar yang sesuai dengan kebutuhan dan spesialisasi yang Anda cari. Setiap konsultan memiliki profil lengkap dengan pengalaman, rating, dan bidang keahlian.
+                    </p>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="p-4 bg-neutral-50 dark:bg-neutral-900 rounded-xl">
+                            <p className="text-sm font-bold text-primary mb-1">100+</p>
+                            <p className="text-xs text-neutral-600 dark:text-neutral-400">Konsultan Terverifikasi</p>
+                        </div>
+                        <div className="p-4 bg-neutral-50 dark:bg-neutral-900 rounded-xl">
+                            <p className="text-sm font-bold text-primary mb-1">15+</p>
+                            <p className="text-xs text-neutral-600 dark:text-neutral-400">Spesialisasi</p>
+                        </div>
+                    </div>
+                </div>
+            ),
         },
         {
-            title: 'Pengisian Screening',
-            description: 'Lengkapi kuesioner awal untuk membantu kami memahami kondisi psiko-spiritual Anda secara mendalam.',
-            icon: <ClipboardCheck size={32} />,
-            color: 'bg-amber-500'
+            title: "Atur Jadwal",
+            content: (
+                <div>
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center text-primary">
+                            <Calendar size={28} />
+                        </div>
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/30">
+                            02
+                        </div>
+                    </div>
+                    <p className="text-neutral-700 dark:text-neutral-300 text-base md:text-lg leading-relaxed mb-8">
+                        Tentukan waktu yang paling nyaman bagi Anda untuk mengikuti sesi. Sistem booking kami yang fleksibel memudahkan Anda mengatur jadwal sesuai ketersediaan konsultan.
+                    </p>
+                    <div className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl border border-primary/20">
+                        <p className="text-sm font-bold text-primary mb-2">Fleksibilitas Waktu</p>
+                        <p className="text-xs text-neutral-600 dark:text-neutral-400">Pilih sesi pagi, siang, atau malam sesuai kenyamanan Anda</p>
+                    </div>
+                </div>
+            ),
         },
         {
-            title: 'Konsultasi Penjernihan',
-            description: 'Sesi awal gratis dengan konsultan untuk memvalidasi keluhan (Was-was/Gangguan/Psikologis).',
-            icon: <MessageSquare size={32} />,
-            color: 'bg-emerald-600'
+            title: "Mulai Sesi",
+            content: (
+                <div>
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center text-primary">
+                            <MessageCircle size={28} />
+                        </div>
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/30">
+                            03
+                        </div>
+                    </div>
+                    <p className="text-neutral-700 dark:text-neutral-300 text-base md:text-lg leading-relaxed mb-8">
+                        Lakukan percakapan bimbingan yang mendalam dan solutif melalui aplikasi. Sesi dilakukan dengan privasi terjamin dan dalam suasana yang nyaman.
+                    </p>
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400">Chat & Video Call</p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400">End-to-End Encryption</p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400">Rekaman Sesi Tersimpan</p>
+                        </div>
+                    </div>
+                </div>
+            ),
         },
         {
-            title: 'Program Bimbingan',
-            description: 'Dapatkan program terstruktur yang disesuaikan dengan kondisi Anda untuk pemulihan bertahap.',
-            icon: <Zap size={32} />,
-            color: 'bg-indigo-600'
+            title: "Evaluasi Diri",
+            content: (
+                <div>
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center text-primary">
+                            <Zap size={28} />
+                        </div>
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/30">
+                            04
+                        </div>
+                    </div>
+                    <p className="text-neutral-700 dark:text-neutral-300 text-base md:text-lg leading-relaxed mb-8">
+                        Terima hasil analisis dan rencana tindak lanjut untuk pertumbuhan spiritual Anda. Konsultan akan memberikan rekomendasi dan panduan untuk perjalanan selanjutnya.
+                    </p>
+                    <div className="p-6 bg-gradient-to-br from-primary to-primary/90 rounded-2xl text-white">
+                        <p className="text-sm font-bold mb-2">Laporan Komprehensif</p>
+                        <p className="text-xs opacity-90">Dapatkan insight mendalam tentang perkembangan spiritual dan mental Anda</p>
+                    </div>
+                </div>
+            ),
         },
-        {
-            title: 'Monitoring & Selesai',
-            description: 'Pantau perkembangan Anda melalui aplikasi hingga mencapai kemantapan batin yang diharapkan.',
-            icon: <CheckCircle2 size={32} />,
-            color: 'bg-primary'
-        }
     ];
 
     return (
@@ -65,64 +143,14 @@ export default function HowItWorks({ logo }: Props) {
                 breadcrumbs={breadcrumbs}
             />
 
-            <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white overflow-hidden">
+            <section className="bg-white">
+                <Timeline data={timelineData} />
+            </section>
+
+            {/* Final CTA Note */}
+            <section className="pb-24 px-4 sm:px-6 lg:px-8 bg-white">
                 <div className="max-w-6xl mx-auto">
-                    {/* Hero Section of the page */}
-                    <div className="text-center mb-20">
-                        <h2 className="text-3xl font-bold text-[#111827] mb-4">5 Langkah Menuju Ketenangan Batin</h2>
-                        <p className="text-neutral-500 max-w-2xl mx-auto">Kami menggunakan metode Tadarruj (bertahap) untuk memastikan setiap proses bimbingan berjalan secara alami dan efektif.</p>
-                    </div>
-
-                    {/* Step by Step */}
-                    <div className="relative">
-                        {/* Connection Line (Desktop) */}
-                        <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-neutral-100 -translate-x-1/2" />
-
-                        <div className="space-y-16 lg:space-y-24 relative z-10">
-                            {steps.map((step, index) => (
-                                <motion.div
-                                    key={index}
-                                    initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                                    whileInView={{ opacity: 1, x: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.8, ease: "easeOut" }}
-                                    className={`flex flex-col lg:flex-row items-center gap-8 lg:gap-0 ${index % 2 === 0 ? '' : 'lg:flex-row-reverse'
-                                        }`}
-                                >
-                                    {/* Content Area */}
-                                    <div className={`flex-1 w-full lg:w-auto ${index % 2 === 0 ? 'lg:text-right lg:pr-20' : 'lg:text-left lg:pl-20'
-                                        }`}>
-                                        <div className="bg-neutral-50 p-8 rounded-[2.5rem] border border-neutral-100 hover:shadow-xl hover:shadow-neutral-100 transition-all duration-500">
-                                            <span className="inline-block px-4 py-1.5 rounded-full bg-white text-primary text-xs font-bold uppercase tracking-widest mb-4 border border-primary/10">
-                                                Langkah {index + 1}
-                                            </span>
-                                            <h3 className="text-2xl font-bold text-[#111827] mb-4">{step.title}</h3>
-                                            <p className="text-[#6B7280] leading-relaxed italic">
-                                                "{step.description}"
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Icon / Circle Area */}
-                                    <div className="relative flex-shrink-0 z-20">
-                                        <div className={`w-20 h-20 rounded-3xl ${step.color} text-white flex items-center justify-center shadow-2xl shadow-neutral-200 transform rotate-45 group hover:rotate-0 transition-transform duration-500`}>
-                                            <div className="transform -rotate-45 group-hover:rotate-0 transition-transform duration-500">
-                                                {step.icon}
-                                            </div>
-                                        </div>
-                                        {/* Pulse for current active step - just for visual */}
-                                        <div className={`absolute inset-0 rounded-3xl ${step.color} animate-ping opacity-20`} />
-                                    </div>
-
-                                    {/* Empty area for balance */}
-                                    <div className="hidden lg:block flex-1" />
-                                </motion.div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Final Note */}
-                    <div className="mt-32 text-center bg-primary/5 rounded-[3rem] p-12 lg:p-20 relative overflow-hidden">
+                    <div className="text-center bg-primary/5 rounded-[3rem] p-12 lg:p-20 relative overflow-hidden">
                         <div className="relative z-10 max-w-3xl mx-auto">
                             <h3 className="text-3xl font-bold text-[#111827] mb-6">Siap Memulai Perjalanan Anda?</h3>
                             <p className="text-[#4B5563] text-lg mb-10 leading-relaxed">
@@ -130,7 +158,9 @@ export default function HowItWorks({ logo }: Props) {
                             </p>
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                                 <a
-                                    href="/register"
+                                    href={waLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="bg-primary hover:bg-primary/90 text-white px-10 py-5 rounded-2xl font-bold transition-all duration-300 shadow-xl shadow-primary/20 flex items-center gap-2 group"
                                 >
                                     Daftar Sekarang

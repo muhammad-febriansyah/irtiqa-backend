@@ -15,7 +15,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
     }
 
     /**
@@ -24,6 +23,25 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->registerNotificationChannels();
+    }
+
+    /**
+     * Register custom notification channels
+     */
+    protected function registerNotificationChannels(): void
+    {
+        \Illuminate\Notifications\Channels\DatabaseChannel::class;
+
+        $this->app->make('Illuminate\Notifications\ChannelManager')->extend('whatsapp', function ($app) {
+            return new \App\Notifications\Channels\WhatsAppChannel(
+                $app->make(\App\Services\WhatsAppService::class)
+            );
+        });
+
+        $this->app->make('Illuminate\Notifications\ChannelManager')->extend('mailketing', function ($app) {
+            return new \App\Notifications\Channels\MailketingChannel();
+        });
     }
 
     protected function configureDefaults(): void

@@ -243,7 +243,6 @@ class ProgramController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-        // Mark messages as read
         Message::where('messageable_type', Program::class)
             ->where('messageable_id', $program->id)
             ->where('recipient_id', $request->user()->id)

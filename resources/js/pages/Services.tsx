@@ -1,4 +1,5 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
+import { SharedData } from '@/types';
 import HomeLayout from '@/layouts/HomeLayout';
 import PageHeader from '@/components/app/PageHeader';
 import { Check, Clock, MessageCircle, BookOpen, Sparkles, Shield, Users, Package } from 'lucide-react';
@@ -26,6 +27,10 @@ export default function Services({ packages, logo }: Props) {
     const breadcrumbs = [
         { label: 'Layanan' }
     ];
+
+    const { siteSettings } = usePage<SharedData>().props;
+    const waNumber = siteSettings.contact_phone?.replace(/[^0-9]/g, '');
+    const waLink = `https://wa.me/${waNumber}`;
 
     // Map icon based on package type
     const getIcon = (type: string) => {
@@ -95,11 +100,10 @@ export default function Services({ packages, logo }: Props) {
                                 return (
                                     <div
                                         key={pkg.id}
-                                        className={`relative bg-white rounded-2xl p-8 transition-all duration-300 ${
-                                            pkg.is_featured
-                                                ? 'border-2 border-primary shadow-xl scale-105'
-                                                : 'border border-[#E5E7EB] hover:border-primary/30 hover:shadow-lg'
-                                        }`}
+                                        className={`relative bg-white rounded-2xl p-8 transition-all duration-300 ${pkg.is_featured
+                                            ? 'border-2 border-primary shadow-xl scale-105'
+                                            : 'border border-[#E5E7EB] hover:border-primary/30 hover:shadow-lg'
+                                            }`}
                                     >
                                         {pkg.is_featured && (
                                             <div className="absolute -top-4 left-1/2 -translate-x-1/2">
@@ -110,9 +114,8 @@ export default function Services({ packages, logo }: Props) {
                                         )}
 
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                                                pkg.is_featured ? 'bg-primary text-white' : 'bg-primary/10 text-primary'
-                                            }`}>
+                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${pkg.is_featured ? 'bg-primary text-white' : 'bg-primary/10 text-primary'
+                                                }`}>
                                                 <Icon size={24} />
                                             </div>
                                             <div>
@@ -128,9 +131,8 @@ export default function Services({ packages, logo }: Props) {
                                         </div>
 
                                         <div className="mb-4">
-                                            <p className={`text-2xl font-bold ${
-                                                pkg.is_featured ? 'text-primary' : 'text-[#111827]'
-                                            }`}>
+                                            <p className={`text-2xl font-bold ${pkg.is_featured ? 'text-primary' : 'text-[#111827]'
+                                                }`}>
                                                 {pkg.price === 0 ? 'Gratis' : pkg.formatted_price}
                                             </p>
                                         </div>
@@ -145,9 +147,8 @@ export default function Services({ packages, logo }: Props) {
                                                     <li key={idx} className="flex items-start gap-2">
                                                         <Check
                                                             size={18}
-                                                            className={`flex-shrink-0 mt-0.5 ${
-                                                                pkg.is_featured ? 'text-primary' : 'text-[#10B981]'
-                                                            }`}
+                                                            className={`flex-shrink-0 mt-0.5 ${pkg.is_featured ? 'text-primary' : 'text-[#10B981]'
+                                                                }`}
                                                         />
                                                         <span className="text-sm text-[#4B5563]">
                                                             {feature}
@@ -158,12 +159,13 @@ export default function Services({ packages, logo }: Props) {
                                         )}
 
                                         <a
-                                            href="/register"
-                                            className={`block w-full text-center px-6 py-3 rounded-lg font-semibold transition-all ${
-                                                pkg.is_featured
-                                                    ? 'bg-primary text-white hover:bg-primary/90 shadow-md'
-                                                    : 'bg-[#F9FAFB] text-[#111827] hover:bg-primary hover:text-white border border-[#E5E7EB]'
-                                            }`}
+                                            href={waLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`block w-full text-center px-6 py-3 rounded-lg font-semibold transition-all ${pkg.is_featured
+                                                ? 'bg-primary text-white hover:bg-primary/90 shadow-md'
+                                                : 'bg-[#F9FAFB] text-[#111827] hover:bg-primary hover:text-white border border-[#E5E7EB]'
+                                                }`}
                                         >
                                             {pkg.price === 0 ? 'Mulai Konsultasi' : 'Pilih Paket'}
                                         </a>
@@ -222,7 +224,9 @@ export default function Services({ packages, logo }: Props) {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <a
-                            href="/register"
+                            href={waLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="inline-flex items-center justify-center px-8 py-4 rounded-lg bg-white text-primary font-bold hover:bg-white/90 transition-colors shadow-lg"
                         >
                             Daftar Sekarang

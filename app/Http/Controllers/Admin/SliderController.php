@@ -62,7 +62,6 @@ class SliderController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            // Delete old image
             if ($slider->image) {
                 Storage::disk('public')->delete($slider->image);
             }

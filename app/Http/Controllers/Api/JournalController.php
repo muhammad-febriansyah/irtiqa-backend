@@ -20,22 +20,18 @@ class JournalController extends Controller
         $query = JournalEntry::where('user_id', $user->id)
             ->orderBy('entry_date', 'desc');
 
-        // Filter by mood
         if ($request->has('mood')) {
             $query->where('mood', $request->mood);
         }
 
-        // Filter by date range
         if ($request->has('start_date') && $request->has('end_date')) {
             $query->whereBetween('entry_date', [$request->start_date, $request->end_date]);
         }
 
-        // Filter by tags
         if ($request->has('tag')) {
             $query->whereJsonContains('tags', $request->tag);
         }
 
-        // Pagination
         $perPage = $request->get('per_page', 20);
         $entries = $query->paginate($perPage);
 
@@ -68,7 +64,6 @@ class JournalController extends Controller
 
         $user = $request->user();
 
-        // Check if entry already exists for this date
         $existing = JournalEntry::where('user_id', $user->id)
             ->where('entry_date', $request->entry_date)
             ->first();
@@ -80,7 +75,6 @@ class JournalController extends Controller
             ], 400);
         }
 
-        // Create entry (content will be auto-encrypted)
         $entry = JournalEntry::create([
             'user_id' => $user->id,
             'entry_date' => $request->entry_date,
@@ -177,12 +171,10 @@ class JournalController extends Controller
 
         $stats = JournalEntry::getMoodStats($user->id, $days);
 
-        // Get recent entries count
         $recentCount = JournalEntry::where('user_id', $user->id)
             ->where('entry_date', '>=', now()->subDays($days))
             ->count();
 
-        // Get streak (consecutive days)
         $streak = $this->calculateStreak($user->id);
 
         return response()->json([

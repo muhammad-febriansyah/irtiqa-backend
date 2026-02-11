@@ -34,7 +34,37 @@ class Consultant extends Model
         'verified_at' => 'datetime',
         'rating_average' => 'decimal:2',
         'working_hours' => 'array',
+        'specialist_category' => 'array',
     ];
+
+    /**
+     * Get the consultant's working hours formatted as readable strings.
+     * Use this method instead of accessing the attribute directly for formatted output.
+     *
+     * @return array
+     */
+    public function getFormattedWorkingHours(): array
+    {
+        $hours = $this->working_hours ?? [];
+
+        if (empty($hours)) {
+            return [];
+        }
+
+        if (array_keys($hours) !== range(0, count($hours) - 1)) {
+            $formatted = [];
+            foreach ($hours as $day => $times) {
+                if (is_array($times)) {
+                    $formatted[] = ucfirst($day) . ': ' . implode(' - ', $times);
+                } else {
+                    $formatted[] = ucfirst($day) . ': ' . $times;
+                }
+            }
+            return $formatted;
+        }
+
+        return $hours;
+    }
 
     public function user(): BelongsTo
     {

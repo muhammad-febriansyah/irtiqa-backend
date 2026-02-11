@@ -13,12 +13,10 @@ class ContactMessageController extends Controller
     {
         $query = ContactMessage::with('repliedBy')->latest();
 
-        // Filter by status
         if ($request->has('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
         }
 
-        // Search
         if ($request->has('search') && $request->search) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
@@ -45,7 +43,6 @@ class ContactMessageController extends Controller
     {
         $message = ContactMessage::with('repliedBy')->findOrFail($id);
 
-        // Mark as read if it's new
         if ($message->status === 'new') {
             $message->update(['status' => 'read']);
         }

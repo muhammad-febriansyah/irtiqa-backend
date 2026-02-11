@@ -20,12 +20,10 @@ class EducationalContentController extends Controller
             ->orderBy('is_featured', 'desc')
             ->orderBy('published_at', 'desc');
 
-        // Filter by category
         if ($request->has('category')) {
             $query->where('category', $request->category);
         }
 
-        // Search
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -58,7 +56,6 @@ class EducationalContentController extends Controller
             ->where('is_published', true)
             ->findOrFail($id);
 
-        // Increment views count
         $content->increment('views_count');
 
         return response()->json([

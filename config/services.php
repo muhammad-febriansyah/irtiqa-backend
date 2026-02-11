@@ -46,4 +46,9 @@ return [
         'secret_key' => env('RECAPTCHA_SECRET_KEY'),
     ],
 
+    'whatsapp' => [
+        'api_url' => env('WHATSAPP_API_URL', 'https://m2.notifwabiz.my.id/send-message'),
+        'api_key' => env('WHATSAPP_API_KEY'),
+    ],
+
 ];

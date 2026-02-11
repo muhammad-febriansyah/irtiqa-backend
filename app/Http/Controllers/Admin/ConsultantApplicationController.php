@@ -17,17 +17,14 @@ class ConsultantApplicationController extends Controller
         $query = ConsultantApplication::with(['user', 'reviewedByAdmin'])
             ->orderBy('created_at', 'desc');
 
-        // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filter by certification type
         if ($request->filled('certification_type')) {
             $query->where('certification_type', $request->certification_type);
         }
 
-        // Search by name or institution
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -38,7 +35,6 @@ class ConsultantApplicationController extends Controller
 
         $applications = $query->paginate($request->get('per_page', 20));
 
-        // Transform data for frontend
         $applications->getCollection()->transform(function ($application) {
             return [
                 'id' => $application->id,

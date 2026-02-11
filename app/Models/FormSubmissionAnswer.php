@@ -55,7 +55,6 @@ class FormSubmissionAnswer extends Model
         $field = $this->field;
         $value = $this->answer_value;
 
-        // If field has options (select, radio, checkbox)
         if ($field->hasOptions()) {
             $option = $field->options()->where('value', $value)->first();
             if ($option) {
@@ -65,7 +64,6 @@ class FormSubmissionAnswer extends Model
             }
         }
 
-        // For text/number fields, risk_score is set manually or 0
         return $this->risk_score ?? 0;
     }
 

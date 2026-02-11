@@ -84,7 +84,6 @@ class EducationalContentController extends Controller
 
         $validated['slug'] = Str::slug($validated['title']);
 
-        // Handle thumbnail upload
         if ($request->hasFile('thumbnail')) {
             $validated['thumbnail'] = $request->file('thumbnail')->store('educational-contents', 'public');
         } else {
@@ -135,9 +134,7 @@ class EducationalContentController extends Controller
 
         $validated['slug'] = Str::slug($validated['title']);
 
-        // Handle thumbnail upload
         if ($request->hasFile('thumbnail')) {
-            // Delete old thumbnail
             if ($educationalContent->thumbnail) {
                 Storage::disk('public')->delete($educationalContent->thumbnail);
             }

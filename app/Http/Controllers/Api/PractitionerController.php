@@ -18,12 +18,10 @@ class PractitionerController extends Controller
         $query = Practitioner::where('is_verified', true)
             ->where('is_active', true);
 
-        // Filter by specialization
         if ($request->has('specialization')) {
             $query->where('specialization', 'like', '%' . $request->specialization . '%');
         }
 
-        // Filter by location
         if ($request->has('province')) {
             $query->where('province', $request->province);
         }
@@ -32,7 +30,6 @@ class PractitionerController extends Controller
             $query->where('city', $request->city);
         }
 
-        // Search
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {

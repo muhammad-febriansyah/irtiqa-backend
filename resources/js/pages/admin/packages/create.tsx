@@ -1,7 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { ArrowLeft, Info, Plus, Save, X } from 'lucide-react';
 import { FormEvent, useState } from 'react';
-import { toast } from 'sonner';
 
 import Heading from '@/components/heading';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -28,7 +27,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function PackageCreate() {
-    const [features, setFeatures] = useState<string[]>(['']);
+    const [priceDisplay, setPriceDisplay] = useState('');
 
     const { data, setData, post, processing, errors } = useForm({
         name: '',
@@ -37,49 +36,49 @@ export default function PackageCreate() {
         sessions_count: '',
         duration_days: '',
         price: '',
+        features: [''],
         is_active: true,
         is_featured: false,
         sort_order: '0',
     });
 
     const addFeature = () => {
-        setFeatures([...features, '']);
+        setData('features', [...data.features, '']);
     };
 
     const removeFeature = (index: number) => {
-        if (features.length > 1) {
-            setFeatures(features.filter((_, i) => i !== index));
+        if (data.features.length > 1) {
+            setData('features', data.features.filter((_, i) => i !== index));
         }
     };
 
     const updateFeature = (index: number, value: string) => {
-        const newFeatures = [...features];
+        const newFeatures = [...data.features];
         newFeatures[index] = value;
-        setFeatures(newFeatures);
+        setData('features', newFeatures);
+    };
+
+    const formatRupiah = (value: string) => {
+        const number = value.replace(/[^0-9]/g, '');
+        return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    };
+
+    const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        const numericValue = value.replace(/[^0-9]/g, '');
+        setData('price', numericValue);
+        setPriceDisplay(formatRupiah(numericValue));
     };
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-
-        const submitData = {
+        // Filter empty features before submitting
+        const filteredData = {
             ...data,
-            sessions_count: data.sessions_count ? parseInt(data.sessions_count) : null,
-            duration_days: data.duration_days ? parseInt(data.duration_days) : null,
-            price: parseFloat(data.price),
-            features: features.filter((f) => f.trim()).length > 0 ? features.filter((f) => f.trim()) : null,
-            sort_order: parseInt(data.sort_order),
+            features: data.features.filter((f) => f.trim() !== ''),
         };
 
-        post('/admin/packages', {
-            data: submitData,
-            onSuccess: () => {
-                toast.success('Paket berhasil ditambahkan');
-                router.visit('/admin/packages');
-            },
-            onError: () => {
-                toast.error('Gagal menambahkan paket');
-            },
-        });
+        router.post('/admin/packages', filteredData);
     };
 
     return (
@@ -149,18 +148,23 @@ export default function PackageCreate() {
                                 <Label htmlFor="price">
                                     Harga (Rp) <span className="text-destructive">*</span>
                                 </Label>
-                                <Input
-                                    id="price"
-                                    type="number"
-                                    step="1000"
-                                    value={data.price}
-                                    onChange={(e) => setData('price', e.target.value)}
-                                    placeholder="Contoh: 500000"
-                                    required
-                                />
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                                        Rp
+                                    </span>
+                                    <Input
+                                        id="price"
+                                        type="text"
+                                        value={priceDisplay}
+                                        onChange={handlePriceChange}
+                                        placeholder="500.000"
+                                        className="pl-10"
+                                        required
+                                    />
+                                </div>
                                 {errors.price && <p className="text-sm text-destructive">{errors.price}</p>}
                                 <p className="text-sm text-muted-foreground">
-                                    Harga paket dalam Rupiah (tanpa titik atau koma)
+                                    Harga paket dalam Rupiah (gunakan angka saja, pemisah ribuan otomatis)
                                 </p>
                             </div>
                         </CardContent>
@@ -274,7 +278,7 @@ export default function PackageCreate() {
                         <CardContent className="space-y-4">
                             <div className="space-y-3">
                                 <Label>Fitur-Fitur Paket</Label>
-                                {features.map((feature, index) => (
+                                {data.features.map((feature, index) => (
                                     <div key={index} className="flex gap-2">
                                         <Input
                                             value={feature}
@@ -286,7 +290,7 @@ export default function PackageCreate() {
                                             variant="outline"
                                             size="icon"
                                             onClick={() => removeFeature(index)}
-                                            disabled={features.length === 1}
+                                            disabled={data.features.length <= 1}
                                         >
                                             <X className="size-4" />
                                         </Button>

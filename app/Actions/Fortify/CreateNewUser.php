@@ -33,10 +33,8 @@ class CreateNewUser implements CreatesNewUsers
                 'password' => $input['password'],
             ]);
 
-            // Assign consultant role
             $user->assignRole('consultant');
 
-            // Create consultant record (status: pending)
             $user->consultant()->create([
                 'status' => 'pending',
                 'is_active' => false,

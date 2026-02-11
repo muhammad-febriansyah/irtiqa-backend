@@ -41,12 +41,16 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? $request->user()->load('roles') : null,
             ],
             'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'siteSettings' => [
                 'app_name' => SystemSetting::get('app_name', config('app.name')),
                 'tagline' => SystemSetting::get('tagline', ''),
+                'description' => SystemSetting::get('description', ''),
+                'seo_title' => SystemSetting::get('seo_title', ''),
+                'seo_description' => SystemSetting::get('seo_description', ''),
+                'seo_keywords' => SystemSetting::get('seo_keywords', ''),
                 'logo' => $this->getLogoUrl(),
                 'favicon' => $this->getFaviconUrl(),
                 'contact_email' => SystemSetting::get('contact_email', 'support@irtiqa.com'),

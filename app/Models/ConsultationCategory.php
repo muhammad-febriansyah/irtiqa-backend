@@ -12,6 +12,7 @@ class ConsultationCategory extends Model
         'slug',
         'description',
         'icon',
+        'color',
         'is_active',
         'sort_order',
     ];

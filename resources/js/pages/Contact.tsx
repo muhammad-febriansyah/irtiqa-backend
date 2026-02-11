@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import HomeLayout from '@/layouts/HomeLayout';
 import PageHeader from '@/components/app/PageHeader';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
+import { SharedData } from '@/types';
 import {
     Mail,
     Phone,
@@ -32,6 +33,10 @@ export default function Contact({ logo, contactInfo }: Props) {
         message: '',
         recaptcha_token: '',
     });
+
+    const { siteSettings } = usePage<SharedData>().props;
+    const waNumber = siteSettings.contact_phone?.replace(/[^0-9]/g, '');
+    const waLink = `https://wa.me/${waNumber}`;
 
     const breadcrumbs = [
         { label: 'Informasi' },
@@ -126,7 +131,12 @@ export default function Contact({ logo, contactInfo }: Props) {
                                     <p className="text-[#6B7280] text-sm leading-relaxed mb-4">
                                         Gunakan fitur chat langsung di aplikasi kami setelah Anda daftar untuk respon yang lebih cepat.
                                     </p>
-                                    <a href="/register" className="text-primary font-bold text-sm hover:underline inline-flex items-center gap-1">
+                                    <a
+                                        href={waLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-primary font-bold text-sm hover:underline inline-flex items-center gap-1"
+                                    >
                                         Mulai Konsultasi <Globe size={14} />
                                     </a>
                                 </div>

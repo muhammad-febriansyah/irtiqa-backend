@@ -54,7 +54,6 @@ class ConsultantController extends Controller
      */
     public function create()
     {
-        // Get all users who don't have consultant profile yet
         $users = User::whereDoesntHave('consultant')->get();
 
         return Inertia::render('admin/consultants/create', [
@@ -83,7 +82,6 @@ class ConsultantController extends Controller
 
         $consultant = Consultant::create($validated);
 
-        // Auto-assign consultant role to the user
         $user = User::find($validated['user_id']);
         $consultantRole = \App\Models\Role::where('name', 'consultant')->first();
         if ($consultantRole && !$user->roles->contains($consultantRole->id)) {
@@ -100,7 +98,6 @@ class ConsultantController extends Controller
     {
         $consultant->load('user');
 
-        // Get all users who don't have consultant profile (plus the current user)
         $users = User::whereDoesntHave('consultant')
             ->orWhere('id', $consultant->user_id)
             ->get();

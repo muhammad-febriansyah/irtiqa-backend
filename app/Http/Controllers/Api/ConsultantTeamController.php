@@ -37,7 +37,6 @@ class ConsultantTeamController extends Controller
         $ticket = ConsultationTicket::findOrFail($ticketId);
         $user = $request->user();
 
-        // Get consultant record
         $inviterConsultant = Consultant::where('user_id', $user->id)->first();
         if (!$inviterConsultant) {
             return response()->json([
@@ -46,7 +45,6 @@ class ConsultantTeamController extends Controller
             ], 403);
         }
 
-        // Check if user is primary consultant
         $primaryTeamMember = $ticket->team()->primary()
             ->where('consultant_id', $inviterConsultant->id)
             ->first();
@@ -71,7 +69,6 @@ class ConsultantTeamController extends Controller
             ], 422);
         }
 
-        // Check if consultant is already in team
         if ($ticket->team()->where('consultant_id', $request->consultant_id)->exists()) {
             return response()->json([
                 'success' => false,
@@ -117,7 +114,6 @@ class ConsultantTeamController extends Controller
         $ticket = ConsultationTicket::findOrFail($ticketId);
         $user = $request->user();
 
-        // Check if user owns this ticket
         if ($ticket->user_id !== $user->id) {
             return response()->json([
                 'success' => false,
@@ -159,7 +155,6 @@ class ConsultantTeamController extends Controller
         $ticket = ConsultationTicket::findOrFail($ticketId);
         $user = $request->user();
 
-        // Check if user owns this ticket
         if ($ticket->user_id !== $user->id) {
             return response()->json([
                 'success' => false,
@@ -192,7 +187,6 @@ class ConsultantTeamController extends Controller
         $ticket = ConsultationTicket::findOrFail($ticketId);
         $user = $request->user();
 
-        // Get consultant record
         $referrerConsultant = Consultant::where('user_id', $user->id)->first();
         if (!$referrerConsultant) {
             return response()->json([
@@ -201,7 +195,6 @@ class ConsultantTeamController extends Controller
             ], 403);
         }
 
-        // Check if user is primary consultant
         $primaryTeamMember = $ticket->team()->primary()
             ->where('consultant_id', $referrerConsultant->id)
             ->first();
@@ -228,13 +221,11 @@ class ConsultantTeamController extends Controller
 
         DB::beginTransaction();
         try {
-            // Change current primary to collaborator
             $primaryTeamMember->update([
                 'role' => ConsultationTicketConsultant::ROLE_COLLABORATOR,
                 'user_approved_at' => now(), // Auto-approve when downgraded
             ]);
 
-            // Add new specialist as primary (referred)
             $newPrimary = $ticket->team()->create([
                 'consultant_id' => $request->consultant_id,
                 'role' => ConsultationTicketConsultant::ROLE_REFERRED,
@@ -244,7 +235,6 @@ class ConsultantTeamController extends Controller
                 'is_active' => true,
             ]);
 
-            // Update ticket consultant
             $ticket->update([
                 'consultant_id' => $request->consultant_id,
             ]);
@@ -276,7 +266,6 @@ class ConsultantTeamController extends Controller
         $ticket = ConsultationTicket::findOrFail($ticketId);
         $user = $request->user();
 
-        // Get consultant record
         $currentConsultant = Consultant::where('user_id', $user->id)->first();
         if (!$currentConsultant) {
             return response()->json([
@@ -285,7 +274,6 @@ class ConsultantTeamController extends Controller
             ], 403);
         }
 
-        // Check if user is primary consultant
         $primaryTeamMember = $ticket->team()->primary()
             ->where('consultant_id', $currentConsultant->id)
             ->first();
@@ -299,7 +287,6 @@ class ConsultantTeamController extends Controller
 
         $teamMember = $ticket->team()->findOrFail($teamMemberId);
 
-        // Cannot remove primary consultant
         if ($teamMember->isPrimary()) {
             return response()->json([
                 'success' => false,

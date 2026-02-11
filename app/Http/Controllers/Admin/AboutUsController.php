@@ -36,13 +36,11 @@ class AboutUsController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            // Delete old image if exists
             if ($aboutUs->image) {
                 Storage::disk('public')->delete($aboutUs->image);
             }
             $validated['image'] = $request->file('image')->store('about-us', 'public');
         } else {
-            // Keep existing image if no new one is uploaded
             unset($validated['image']);
         }
 

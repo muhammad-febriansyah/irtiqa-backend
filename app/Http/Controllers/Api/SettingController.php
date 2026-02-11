@@ -21,7 +21,6 @@ class SettingController extends Controller
             ->orderBy('key')
             ->get();
 
-        // Format as key-value pairs for easier consumption
         $formatted = $settings->mapWithKeys(function ($setting) {
             $value = match ($setting->type) {
                 'boolean' => (bool) $setting->value,
@@ -43,7 +42,6 @@ class SettingController extends Controller
      */
     public function index(Request $request)
     {
-        // Check if user is admin
         if (!$request->user()->hasRole('admin')) {
             return response()->json([
                 'success' => false,
@@ -53,12 +51,10 @@ class SettingController extends Controller
 
         $query = SystemSetting::query();
 
-        // Filter by group
         if ($request->has('group')) {
             $query->forGroup($request->group);
         }
 
-        // Search by key
         if ($request->has('search')) {
             $query->where('key', 'like', '%' . $request->search . '%');
         }
@@ -84,7 +80,6 @@ class SettingController extends Controller
             ], 404);
         }
 
-        // Check if setting is public or user is admin
         if (!$setting->is_public && !$request->user()?->hasRole('admin')) {
             return response()->json([
                 'success' => false,
@@ -105,14 +100,12 @@ class SettingController extends Controller
     {
         $query = SystemSetting::forGroup($group);
 
-        // Only public settings if not admin
         if (!$request->user()?->hasRole('admin')) {
             $query->public();
         }
 
         $settings = $query->orderBy('key')->get();
 
-        // Format as key-value pairs
         $formatted = $settings->mapWithKeys(function ($setting) {
             $value = match ($setting->type) {
                 'boolean' => (bool) $setting->value,
@@ -134,7 +127,6 @@ class SettingController extends Controller
      */
     public function update(Request $request, $key)
     {
-        // Check if user is admin
         if (!$request->user()->hasRole('admin')) {
             return response()->json([
                 'success' => false,
@@ -161,7 +153,6 @@ class SettingController extends Controller
         $setting = SystemSetting::where('key', $key)->first();
 
         if (!$setting) {
-            // Create new setting
             $setting = SystemSetting::create([
                 'key' => $key,
                 'value' => is_array($request->value) ? json_encode($request->value) : $request->value,
@@ -171,7 +162,6 @@ class SettingController extends Controller
                 'is_public' => $request->boolean('is_public', false),
             ]);
         } else {
-            // Update existing setting
             $setting->update([
                 'value' => is_array($request->value) ? json_encode($request->value) : $request->value,
                 'type' => $request->type ?? $setting->type,
@@ -193,7 +183,6 @@ class SettingController extends Controller
      */
     public function bulkUpdate(Request $request)
     {
-        // Check if user is admin
         if (!$request->user()->hasRole('admin')) {
             return response()->json([
                 'success' => false,
@@ -253,7 +242,6 @@ class SettingController extends Controller
      */
     public function destroy(Request $request, $key)
     {
-        // Check if user is admin
         if (!$request->user()->hasRole('admin')) {
             return response()->json([
                 'success' => false,
@@ -283,7 +271,6 @@ class SettingController extends Controller
      */
     public function groups(Request $request)
     {
-        // Check if user is admin
         if (!$request->user()->hasRole('admin')) {
             return response()->json([
                 'success' => false,

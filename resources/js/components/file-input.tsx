@@ -33,7 +33,6 @@ export default function FileInput({
         if (file) {
             onChange(file);
 
-            // Generate preview for images
             if (file.type.startsWith('image/') || file.name.endsWith('.ico')) {
                 const reader = new FileReader();
                 reader.onloadend = () => {

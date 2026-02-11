@@ -1,7 +1,6 @@
 import { Head, router, Link } from '@inertiajs/react';
 import { AlertTriangle, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 
 import AppLayout from '@/layouts/app-layout';
 import { DataTable, type Column } from '@/components/ui/data-table';

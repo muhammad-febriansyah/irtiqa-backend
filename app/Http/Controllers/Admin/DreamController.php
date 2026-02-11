@@ -14,17 +14,14 @@ class DreamController extends Controller
         $query = Dream::with(['user', 'consultationTicket'])
             ->orderByDesc('created_at');
 
-        // Filter by classification
         if ($request->filled('classification')) {
             $query->where('classification', $request->classification);
         }
 
-        // Filter by requested consultation
         if ($request->boolean('requested_consultation')) {
             $query->where('requested_consultation', true);
         }
 
-        // Filter by date range
         if ($request->filled('date_from')) {
             $query->whereDate('dream_date', '>=', $request->date_from);
         }
@@ -33,7 +30,6 @@ class DreamController extends Controller
             $query->whereDate('dream_date', '<=', $request->date_to);
         }
 
-        // Search
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('dream_content', 'like', "%{$request->search}%")

@@ -45,8 +45,7 @@ class ConsultationController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'category_id' => ['required', 'exists:consultation_categories,id'],
-            'subject' => ['required', 'string', 'max:255'],
+            'category' => ['required', 'string'],
             'description' => ['required', 'string'],
             'screening_answers' => ['sometimes', 'array'],
             'is_anonymous' => ['sometimes', 'boolean'],
@@ -54,12 +53,10 @@ class ConsultationController extends Controller
         ]);
 
         $consultation = DB::transaction(function () use ($request) {
-            // Assess risk using RiskAssessmentService
             $riskService = app(\App\Services\RiskAssessmentService::class);
             $riskAssessment = $riskService->assess($request->description);
 
             if ($riskAssessment['requires_escalation']) {
-                // We'll call this after consultation is created to have the ID
                 $shouldEscalate = true;
             } else {
                 $shouldEscalate = false;
@@ -67,8 +64,7 @@ class ConsultationController extends Controller
 
             $consultation = ConsultationTicket::create([
                 'user_id' => $request->user()->id,
-                'category_id' => $request->category_id,
-                'subject' => $request->subject,
+                'category' => $request->category,
                 'problem_description' => $request->description,
                 'screening_answers' => $request->screening_answers ?? [],
                 'is_anonymous' => $request->is_anonymous ?? false,
@@ -78,7 +74,6 @@ class ConsultationController extends Controller
                 'risk_level' => $riskAssessment['risk_level'],
             ]);
 
-            // If high risk, trigger escalation notification
             if ($riskAssessment['requires_escalation']) {
                 $this->escalateHighRiskCase($consultation, $riskAssessment);
             }
@@ -180,7 +175,6 @@ class ConsultationController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-        // Mark messages as read
         Message::where('messageable_type', ConsultationTicket::class)
             ->where('messageable_id', $consultation->id)
             ->where('recipient_id', $request->user()->id)
@@ -228,7 +222,6 @@ class ConsultationController extends Controller
             ]
         );
 
-        // Update consultant average rating
         $this->updateConsultantRating($consultation->consultant_id);
 
         return response()->json([
@@ -343,7 +336,6 @@ class ConsultationController extends Controller
      */
     private function escalateHighRiskCase(ConsultationTicket $consultation, array $riskAssessment): void
     {
-        // Log the escalation
         \Log::warning('High-risk consultation detected', [
             'consultation_id' => $consultation->id,
             'user_id' => $consultation->user_id,
@@ -352,7 +344,6 @@ class ConsultationController extends Controller
             'risk_score' => $riskAssessment['risk_score'] ?? 0,
         ]);
 
-        // Create CrisisAlert
         $alert = \App\Models\CrisisAlert::create([
             'user_id' => $consultation->user_id,
             'ticket_id' => $consultation->id,
@@ -363,7 +354,6 @@ class ConsultationController extends Controller
             'notes' => 'Otomatis dibuat oleh sistem karena skor risiko: ' . ($riskAssessment['risk_score'] ?? 'N/A'),
         ]);
 
-        // Notify all admins
         $admins = User::whereHas('roles', function ($query) {
             $query->where('name', 'admin');
         })->get();
@@ -372,7 +362,6 @@ class ConsultationController extends Controller
             $admin->notify(new CrisisAlertNotification($alert));
         }
 
-        // Also notify the assigned consultant if any
         if ($consultation->consultant && $consultation->consultant->user) {
             $consultation->consultant->user->notify(new CrisisAlertNotification($alert));
         }

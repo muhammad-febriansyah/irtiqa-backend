@@ -1,6 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
 
 import AppLayout from '@/layouts/app-layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -9,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { BreadcrumbItem } from '@/types';
+import { toast } from 'sonner';
 
 interface User {
     id: number;
@@ -242,7 +242,7 @@ export default function ConsultantsIndex({ consultants, filters }: Props) {
                                 onPageChange: handlePageChange,
                             }}
                             emptyMessage="Belum ada konsultan terdaftar."
-                            actions={
+                            headerActions={
                                 <Link href="/admin/consultants/create">
                                     <Button>
                                         <Plus className="mr-2 size-4" />

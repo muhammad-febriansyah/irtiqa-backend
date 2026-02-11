@@ -17,7 +17,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Statistics Cards
         $stats = [
             'total_users' => User::count(),
             'total_consultants' => Consultant::where('is_active', true)->count(),
@@ -33,7 +32,6 @@ class DashboardController extends Controller
                 ->where('payment_method', 'manual_transfer')
                 ->whereNotNull('transfer_proof')
                 ->count(),
-            // Crisis Alerts Statistics
             'pending_crisis_alerts' => \App\Models\CrisisAlert::where('status', 'pending')->count(),
             'critical_alerts' => \App\Models\CrisisAlert::where('severity', 'critical')
                 ->whereIn('status', ['pending', 'acknowledged'])
@@ -42,7 +40,6 @@ class DashboardController extends Controller
                 ->whereMonth('resolved_at', Carbon::now()->month)
                 ->whereYear('resolved_at', Carbon::now()->year)
                 ->count(),
-            // Consultant Applications Statistics
             'pending_applications' => \App\Models\ConsultantApplication::where('status', 'pending')->count(),
             'approved_applications_this_month' => \App\Models\ConsultantApplication::where('status', 'approved')
                 ->whereMonth('reviewed_at', Carbon::now()->month)
@@ -54,10 +51,8 @@ class DashboardController extends Controller
                 ->count(),
         ];
 
-        // Average Rating
         $stats['average_rating'] = Rating::where('is_approved', true)->avg('rating') ?? 0;
 
-        // Revenue Chart Data (Last 6 months)
         $revenueChart = Transaction::where('status', 'paid')
             ->where('paid_at', '>=', Carbon::now()->subMonths(6))
             ->selectRaw('DATE_FORMAT(paid_at, "%Y-%m") as month, SUM(total_amount) as total')
@@ -71,7 +66,6 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Transactions by Status
         $transactionsByStatus = Transaction::selectRaw('status, COUNT(*) as count')
             ->groupBy('status')
             ->get()
@@ -83,14 +77,12 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Tickets by Category
         $ticketsByCategory = ConsultationTicket::selectRaw('category, COUNT(*) as count')
             ->groupBy('category')
             ->orderByDesc('count')
             ->limit(5)
             ->get();
 
-        // Latest Transactions
         $latestTransactions = Transaction::with(['user', 'consultant.user', 'package'])
             ->orderByDesc('created_at')
             ->limit(5)
@@ -109,7 +101,6 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Latest Tickets
         $latestTickets = ConsultationTicket::with(['user', 'consultant.user'])
             ->orderByDesc('created_at')
             ->limit(5)
@@ -127,7 +118,6 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Latest Ratings
         $latestRatings = Rating::with(['user', 'consultant.user'])
             ->where('is_approved', true)
             ->orderByDesc('created_at')

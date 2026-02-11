@@ -101,6 +101,10 @@ export default function Welcome({
     const logo = siteSettings.logo;
     const [currentSlide, setCurrentSlide] = useState(0);
 
+    // Format WA Link
+    const waNumber = siteSettings.contact_phone?.replace(/[^0-9]/g, '');
+    const waLink = `https://wa.me/${waNumber}`;
+
     useEffect(() => {
         if (sliders.length > 1) {
             const timer = setInterval(() => {
@@ -129,92 +133,92 @@ export default function Welcome({
 
     return (
         <HomeLayout logo={logo} canRegister={canRegister}>
-            {/* Hero Section with Slider */}
-            <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-white min-h-[600px] flex items-center">
-                <BackgroundBeams className="opacity-40" />
+            {/* Hero Section with Full Screen Slider */}
+            <section className="relative h-screen min-h-[600px] w-full overflow-hidden flex items-center justify-center bg-neutral-900">
+                {/* Background Slider */}
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={currentSlide}
+                        initial={{ opacity: 0, scale: 1.1 }}
+                        animate={{ opacity: 1, scale: 1.05 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1.5, ease: 'easeInOut' }}
+                        className="absolute inset-0 z-0 bg-cover bg-center"
+                        style={{
+                            backgroundImage: `url(${displaySliders[currentSlide].image.startsWith('http')
+                                ? displaySliders[currentSlide].image
+                                : `/storage/${displaySliders[currentSlide].image}`
+                                })`
+                        }}
+                    >
+                        {/* Overlay to ensure text readability */}
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+                    </motion.div>
+                </AnimatePresence>
 
-                <div className="max-w-6xl mx-auto w-full relative z-10">
-                    <AnimatePresence mode="wait">
+                <div className="max-w-6xl mx-auto w-full px-4 relative z-10">
+                    <motion.div
+                        key={currentSlide}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className="max-w-4xl mx-auto text-center"
+                    >
                         <motion.div
-                            key={currentSlide}
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            transition={{ duration: 0.5, ease: 'easeInOut' }}
-                            className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.5 }}
+                            className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/20 text-primary-foreground text-sm font-semibold mb-8 backdrop-blur-md border border-white/10"
                         >
-                            <div className="flex-1 text-center lg:text-left">
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6"
-                                >
-                                    <ShieldCheck size={16} className="mr-2" />
-                                    Aplikasi Pendampingan Aman & Terpercaya
-                                </motion.div>
-
-                                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] mb-6 tracking-tight text-[#111827]">
-                                    {displaySliders[currentSlide].title}
-                                </h1>
-
-                                <p className="text-lg text-[#4B5563] mb-10 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                                    {displaySliders[currentSlide].desc}
-                                </p>
-
-                                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                                    <Link
-                                        href="/register?role=consultant"
-                                        className="group inline-flex items-center justify-center px-8 py-4 rounded-xl bg-primary text-white text-lg font-bold hover:bg-primary/90 transition-all shadow-md active:scale-[0.98]"
-                                    >
-                                        Gabung Sebagai Mitra
-                                        <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                                    </Link>
-                                    <a
-                                        href="#"
-                                        className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-white border-2 border-[#E5E7EB] text-[#4B5563] text-sm font-medium hover:bg-slate-50 transition-all"
-                                    >
-                                        Unduh Aplikasi User
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div className="flex-1 w-full max-w-xl lg:max-w-none">
-                                <motion.div
-                                    initial={{ scale: 0.9, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    transition={{ duration: 0.6, delay: 0.3 }}
-                                    className="relative"
-                                >
-                                    <div className="absolute -inset-4 border-2 border-primary/20 rounded-3xl" />
-                                    <img
-                                        src={
-                                            displaySliders[currentSlide].image.startsWith('http')
-                                                ? displaySliders[currentSlide].image
-                                                : `/storage/${displaySliders[currentSlide].image}`
-                                        }
-                                        alt={displaySliders[currentSlide].title}
-                                        className="relative rounded-2xl w-full h-[300px] sm:h-[450px] shadow-2xl object-cover"
-                                    />
-                                </motion.div>
-                            </div>
+                            <ShieldCheck size={16} className="mr-2" />
+                            Aplikasi Pendampingan Aman & Terpercaya
                         </motion.div>
-                    </AnimatePresence>
 
-                    {/* Slider Navigation Dots */}
-                    {displaySliders.length > 1 && (
-                        <div className="mt-12 flex justify-center lg:justify-start gap-3">
-                            {displaySliders.map((_, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentSlide(index)}
-                                    className={`h-2.5 transition-all duration-300 rounded-full ${index === currentSlide ? 'w-10 bg-primary' : 'w-2.5 bg-primary/20 hover:bg-primary/40'}`}
-                                    aria-label={`Go to slide ${index + 1}`}
-                                />
-                            ))}
+                        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.1] mb-8 tracking-tight text-white drop-shadow-lg">
+                            {displaySliders[currentSlide].title}
+                        </h1>
+
+                        <p className="text-xl text-white/90 mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
+                            {displaySliders[currentSlide].desc}
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                            <a
+                                href={waLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group inline-flex items-center justify-center px-10 py-5 rounded-2xl bg-primary text-white text-lg font-bold hover:bg-primary/90 transition-all shadow-2xl hover:shadow-primary/40 active:scale-[0.98]"
+                            >
+                                Gabung Sebagai Mitra
+                                <ArrowRight size={22} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                            </a>
+                            <a
+                                href="#"
+                                className="inline-flex items-center justify-center px-10 py-5 rounded-2xl bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-bold hover:bg-white/20 transition-all active:scale-[0.98]"
+                            >
+                                Unduh Aplikasi User
+                            </a>
                         </div>
-                    )}
+                    </motion.div>
+
                 </div>
+
+                {/* Slider Navigation Dots */}
+                {displaySliders.length > 1 && (
+                    <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-4 z-30">
+                        {displaySliders.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setCurrentSlide(index)}
+                                className={`h-1.5 transition-all duration-500 rounded-full ${index === currentSlide ? 'w-12 bg-primary' : 'w-6 bg-white/30 hover:bg-white/50'}`}
+                                aria-label={`Go to slide ${index + 1}`}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {/* Decorative Elements */}
+                <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#F6FAFE] to-transparent z-10" />
             </section>
 
             {/* Statistics Section */}
@@ -643,7 +647,7 @@ export default function Welcome({
                                 <Zap size={20} className="mr-2" />
                                 Mulai di Aplikasi
                             </a>
-                            <Link href="/register?role=consultant">
+                            <a href={waLink} target="_blank" rel="noopener noreferrer">
                                 <ShimmerButton
                                     className="px-10 py-5 text-lg font-bold"
                                     background="linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)"
@@ -653,7 +657,7 @@ export default function Welcome({
                                 >
                                     Daftar Sebagai Mitra
                                 </ShimmerButton>
-                            </Link>
+                            </a>
                         </div>
                     </div>
                 </div>

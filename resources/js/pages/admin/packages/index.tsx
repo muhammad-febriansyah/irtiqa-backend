@@ -1,11 +1,18 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Eye, Pencil, Plus, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { Eye, MoreVertical, Pencil, Plus, Trash2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable, type Column } from '@/components/ui/data-table';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -154,27 +161,40 @@ export default function PackagesIndex({ packages, filters }: Props) {
         },
         {
             header: 'Aksi',
-            className: 'text-right',
+            className: 'text-center',
             cell: (row) => (
-                <div className="flex justify-end gap-2">
-                    <Link href={`/admin/packages/${row.id}`}>
-                        <Button size="sm" variant="outline" title="Lihat Detail">
-                            <Eye className="size-4" />
-                        </Button>
-                    </Link>
-                    <Link href={`/admin/packages/${row.id}/edit`}>
-                        <Button size="sm" variant="outline" title="Edit">
-                            <Pencil className="size-4" />
-                        </Button>
-                    </Link>
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDelete(row)}
-                        title="Hapus"
-                    >
-                        <Trash2 className="size-4" />
-                    </Button>
+                <div className="flex justify-center">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="ghost">
+                                <MoreVertical className="size-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                                <Link href={`/admin/packages/${row.id}`} className="cursor-pointer">
+                                    <Eye className="mr-2 size-4" />
+                                    Lihat Detail
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href={`/admin/packages/${row.id}/edit`} className="cursor-pointer">
+                                    <Pencil className="mr-2 size-4" />
+                                    Edit
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                onClick={() => handleDelete(row)}
+                                className="cursor-pointer text-destructive focus:text-destructive"
+                            >
+                                <Trash2 className="mr-2 size-4" />
+                                Hapus
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             ),
         },
@@ -207,7 +227,7 @@ export default function PackagesIndex({ packages, filters }: Props) {
                                 onPageChange: handlePageChange,
                             }}
                             emptyMessage="Belum ada paket konsultasi tersedia."
-                            actions={
+                            headerActions={
                                 <Link href="/admin/packages/create">
                                     <Button>
                                         <Plus className="mr-2 size-4" />

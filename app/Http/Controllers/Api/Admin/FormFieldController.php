@@ -71,7 +71,6 @@ class FormFieldController extends Controller
                 'conditional_logic' => $request->conditional_logic,
             ]);
 
-            // Create options if provided
             if ($request->has('options') && in_array($request->field_type, ['select', 'radio', 'checkbox'])) {
                 foreach ($request->options as $optionData) {
                     $field->options()->create([
@@ -112,7 +111,6 @@ class FormFieldController extends Controller
         $template = FormTemplate::findOrFail($templateId);
         $field = $template->fields()->findOrFail($fieldId);
 
-        // Prevent editing core fields
         if ($field->is_core_field) {
             return response()->json([
                 'success' => false,
@@ -154,13 +152,11 @@ class FormFieldController extends Controller
                 'validation_rules', 'is_required', 'order', 'risk_weight', 'conditional_logic'
             ]));
 
-            // Update options if provided
             if ($request->has('options') && in_array($field->field_type, ['select', 'radio', 'checkbox'])) {
                 $existingOptionIds = [];
 
                 foreach ($request->options as $optionData) {
                     if (isset($optionData['id'])) {
-                        // Update existing option
                         $option = $field->options()->find($optionData['id']);
                         if ($option) {
                             $option->update([
@@ -174,7 +170,6 @@ class FormFieldController extends Controller
                             $existingOptionIds[] = $option->id;
                         }
                     } else {
-                        // Create new option
                         $newOption = $field->options()->create([
                             'label' => $optionData['label'],
                             'value' => $optionData['value'],
@@ -187,7 +182,6 @@ class FormFieldController extends Controller
                     }
                 }
 
-                // Delete options not in the request
                 $field->options()->whereNotIn('id', $existingOptionIds)->delete();
             }
 
@@ -218,7 +212,6 @@ class FormFieldController extends Controller
         $template = FormTemplate::findOrFail($templateId);
         $field = $template->fields()->findOrFail($fieldId);
 
-        // Prevent deleting core fields
         if ($field->is_core_field) {
             return response()->json([
                 'success' => false,
@@ -226,7 +219,6 @@ class FormFieldController extends Controller
             ], 403);
         }
 
-        // Check if field has answers
         if ($field->answers()->exists()) {
             return response()->json([
                 'success' => false,

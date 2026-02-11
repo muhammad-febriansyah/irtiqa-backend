@@ -70,12 +70,10 @@ class ConsultationTicketConsultant extends Model
      */
     public function isApproved(): bool
     {
-        // Primary and referred don't need approval
         if ($this->isPrimary() || $this->isReferred()) {
             return true;
         }
 
-        // Collaborators need user approval
         return $this->user_approved_at !== null;
     }
 
